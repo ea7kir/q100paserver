@@ -1,3 +1,8 @@
+/*
+ *  Q-100 PA Server
+ *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
+ */
+
 package main
 
 // TODO: install i2c-tools

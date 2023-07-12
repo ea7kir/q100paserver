@@ -8,7 +8,8 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 - 4 x 12v fans
 - 1 x 5v power supply
 - 1 x 12v power supply
-- 1 x 12/230v contactor
+- 1 x 28v power supply
+- 2 x 12/230v contactor
 
 **A keyboard and mouse are not required at any time**
 ## Installing

@@ -9,6 +9,6 @@ import "q100paserver/logger"
 
 func main() {
 	logger.Info.Printf("Q-100 PA Server will start...")
-
+	// TODO: need a server
 	logger.Info.Printf("Q-100 PA Server has stopped")
 }
