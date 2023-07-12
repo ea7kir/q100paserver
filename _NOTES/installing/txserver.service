@@ -1,0 +1,22 @@
+# cd /home/pi/TxServer/_Resources
+# sudo cp txserver.service /etc/systemd/system/
+# sudo chmod 644 /etc/systemd/system/txserver.service
+# sudo systemctl daemon-reload
+#
+# sudo systemctl enable txserver
+# sudo systemctl start txserver
+#
+# sudo systemctl status txserver
+#
+# sudo systemctl stop txserver
+# sudo systemctl disable txserver
+#
+[Unit]
+Description=TxServer to control and monitor DATV equipment
+After=mult-user.target
+[Service]
+Type=simple
+Restart=always
+ExecStart=/home/pi/TxServer/txserver
+[Install]
+WantedBy=multi-user.target
