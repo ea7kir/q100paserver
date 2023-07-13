@@ -72,7 +72,6 @@ func handleClientRequest(con net.Conn) {
 	for {
 		// Waiting for the client request
 		clientRequest, err := clientReader.ReadString('\n')
-
 		switch err {
 		case nil:
 			clientRequest := strings.TrimSpace(clientRequest)
@@ -80,8 +79,6 @@ func handleClientRequest(con net.Conn) {
 				logger.Info.Printf("Connection closed with CLOSE")
 				power.Down()
 				return
-			} else {
-				logger.Info.Printf("Received >%v<", clientRequest)
 			}
 		case io.EOF:
 			logger.Info.Printf("Connection closed with io.EOF")
