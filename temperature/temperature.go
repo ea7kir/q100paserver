@@ -7,6 +7,23 @@ package temperature
 
 import "fmt"
 
+// DS18B20 TEMPERATURE SENSORS
+// To enable the 1-wire bus add "dtoverlay=w1-gpio" to /boot/config.txt and reboot.
+// For permissions, add "/sys/bus/w1/devices/28*/w1_slave r" to /opt/pigpio/access.
+// Default connection is data line to GPIO 4 (pin 7).
+// 4k7 pull-up on data line to 3V3
+//
+// Set the slave ID for each DS18B20 TO-92 device
+// To find those available, type: cd /sys/bus/w1/devices/
+// and look for directories named like: 28-3c01d607d440
+
+// TRY https://pkg.go.dev/periph.io/x/conn/v3/onewire
+
+const (
+	PA_SENSOR_SLAVE_ID     = "28-3c01d607e348" // pin 7 GPIO_4
+	PREAMP_SENSOR_SLAVE_ID = "28-3c01d607d440" // pin 7 GPIO_4
+)
+
 func Configure(pi int) {
 	//
 }
