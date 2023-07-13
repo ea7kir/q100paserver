@@ -6,6 +6,7 @@
 package power
 
 import (
+	"q100paserver/logger"
 	"time"
 
 	"github.com/warthog618/gpiod"
@@ -60,6 +61,7 @@ func Shutdown() {
 }
 
 func Up() {
+	logger.Info.Printf("Power UP is starting...")
 	relay5v.SetValue(RELAY_ON)
 	time.Sleep(time.Second)
 	relay28v.SetValue(RELAY_ON)
@@ -67,13 +69,16 @@ func Up() {
 	relay12v.SetValue(RELAY_ON)
 	up = true
 	time.Sleep(time.Second)
+	logger.Info.Printf("Power UP has completed\n")
 }
 
 func Down() {
+	logger.Info.Printf("Power DOWN is starting...\n")
 	relay28v.SetValue(RELAY_OFF)
 	time.Sleep(time.Second)
 	relay5v.SetValue(RELAY_OFF)
 	time.Sleep(time.Second)
 	relay12v.SetValue(RELAY_OFF)
 	up = false
+	logger.Info.Printf("Power DOWN has completed\n")
 }
