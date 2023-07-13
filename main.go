@@ -19,6 +19,8 @@ import (
 	"strings"
 )
 
+const PORT = ":9999" // same as "0.0.0.0:9999"
+
 func configureDevices() {
 	pi := 0
 	power.Configure(pi)
@@ -75,21 +77,17 @@ func handleClientRequest(con net.Conn) {
 		case nil:
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
-				// log.Println("client requested server to close the connection so closing")
 				logger.Info.Printf("Connection closed with CLOSE")
 				power.Down()
 				return
 			} else {
-				// log.Printf("Received >%v<", clientRequest)
 				logger.Info.Printf("Received >%v<", clientRequest)
 			}
 		case io.EOF:
-			// log.Println("client closed the connection by terminating the process")
 			logger.Info.Printf("Connection closed with io.EOF")
 			power.Down()
 			return
 		default:
-			// log.Printf("error: %v\n", err)
 			logger.Warn.Printf("Connection closed abnormally: %v", err)
 			power.Down()
 			return
@@ -100,9 +98,7 @@ func handleClientRequest(con net.Conn) {
 			temperature.Read(),
 			current.Read(),
 			fan.Read())
-		// if _, err = con.Write([]byte("GOT IT!\n")); err != nil {
 		if _, err = con.Write([]byte(str)); err != nil {
-			// log.Printf("failed to respond to client: %v\n", err)
 			logger.Warn.Printf("failed to respond to client: %v\n", err)
 		}
 	}
@@ -110,11 +106,13 @@ func handleClientRequest(con net.Conn) {
 
 // http://www.inanzzz.com/index.php/post/j3n1/creating-a-concurrent-tcp-client-and-server-example-with-golang
 func runServer() {
-	listener, err := net.Listen("tcp", "0.0.0.0:9999")
+	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
 		log.Fatalln(err) // TODO: sort out Fatal
 	}
 	defer listener.Close()
+
+	logger.Info.Printf("Q-100 PA Server has started on %v", listener.Addr().String())
 
 	for {
 		con, err := listener.Accept()
@@ -123,14 +121,13 @@ func runServer() {
 			logger.Warn.Printf("Accept failed: %v\n", err)
 			continue
 		}
-
 		// If you want, you can increment a counter here and inject to handleClientRequest below as client identifier
 		go handleClientRequest(con)
 	}
 }
 
 func main() {
-	logger.Info.Printf("Q-100 PA Server will start...")
+	logger.Info.Printf("Q-100 PA Server has started")
 	configureDevices()
 	runServer()
 	shutdownDevices()
