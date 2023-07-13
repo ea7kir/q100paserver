@@ -27,7 +27,7 @@ var (
 	relay28v *gpiod.Line
 	relay12v *gpiod.Line
 	relay5v  *gpiod.Line
-	up       bool
+	isUp     bool
 )
 
 func Configure(pi int) {
@@ -49,7 +49,7 @@ func Configure(pi int) {
 }
 
 func Shutdown() {
-	if up {
+	if isUp {
 		Down()
 	}
 	relay28v.Reconfigure(gpiod.AsInput)
@@ -67,7 +67,7 @@ func Up() {
 	relay28v.SetValue(RELAY_ON)
 	time.Sleep(time.Second)
 	relay12v.SetValue(RELAY_ON)
-	up = true
+	isUp = true
 	time.Sleep(time.Second)
 	logger.Info.Printf("Power UP has completed\n")
 }
@@ -79,6 +79,6 @@ func Down() {
 	relay5v.SetValue(RELAY_OFF)
 	time.Sleep(time.Second)
 	relay12v.SetValue(RELAY_OFF)
-	up = false
+	isUp = false
 	logger.Info.Printf("Power DOWN has completed\n")
 }
