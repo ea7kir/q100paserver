@@ -6,7 +6,6 @@
 package temperature
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -35,20 +34,20 @@ func Shutdown() {
 	//
 }
 
-func Read() string {
-	str := fmt.Sprintf("Pre %4.1f°C PA %4.1f°C",
-		readPreAmp(), readPA())
-	return str
-}
+// func Read() string {
+// 	str := fmt.Sprintf("Pre %4.1f°C PA %4.1f°C",
+// 		readPreAmp(), readPA())
+// 	return str
+// }
 
-func readPreAmp() float64 {
+func PreAmp() float64 {
 	min := 50
 	max := 55
 	r := rand.Intn(max-min) + min
 	return float64(r)
 }
 
-func readPA() float64 {
+func FinalPA() float64 {
 	min := 40
 	max := 45
 	r := rand.Intn(max-min) + min

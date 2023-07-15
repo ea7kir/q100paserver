@@ -6,7 +6,6 @@
 package fan
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/warthog618/gpiod"
@@ -65,34 +64,34 @@ func Shutdown() {
 	paExtract.Close()
 }
 
-func Read() string {
-	str := fmt.Sprintf("Ein %v Eout %v PAin %v Pout %v",
-		readEncIntake(), readEncExtract(), readPaIntake(), readPaExtract())
-	return str
-}
+// func Read() string {
+// 	str := fmt.Sprintf("ENC %v->%v, PA %v->%v",
+// 		readEncIntake(), readEncExtract(), readPaIntake(), readPaExtract())
+// 	return str
+// }
 
-func readEncIntake() int {
+func EnclosureIntake() int {
 	min := 4000
 	max := 4999
 	r := rand.Intn(max-min) + min
 	return r
 }
 
-func readEncExtract() int {
+func EnclosureExtract() int {
 	min := 4000
 	max := 4999
 	r := rand.Intn(max-min) + min
 	return r
 }
 
-func readPaIntake() int {
+func FinalPAintake() int {
 	min := 4000
 	max := 4999
 	r := rand.Intn(max-min) + min
 	return r
 }
 
-func readPaExtract() int {
+func FinalPAextract() int {
 	min := 4000
 	max := 4999
 	r := rand.Intn(max-min) + min

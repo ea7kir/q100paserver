@@ -6,7 +6,6 @@
 package current
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -39,13 +38,13 @@ func Shutdown() {
 	//
 }
 
-func Read() string {
-	str := fmt.Sprintf("%3.1f amp",
-		readPaCurrent())
-	return str
-}
+// func Read() string {
+// 	str := fmt.Sprintf("%3.1fA",
+// 		readPaCurrent())
+// 	return str
+// }
 
-func readPaCurrent() float64 {
+func FinalPA() float64 {
 	min := 1
 	max := 7
 	r := rand.Intn(max-min) + min

@@ -29,13 +29,18 @@ func configureDevices() {
 	fan.Configure(pi)
 }
 
-// func readDevices() string {
-// 	str := fmt.Sprintf("%v %v %v",
-// 		temperature.Read(),
-// 		current.Read(),
-// 		fan.Read())
-// 	return str
-// }
+func readDevices() string {
+	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %4d->%4d, PA %4d->%4d",
+		temperature.PreAmp(),
+		temperature.FinalPA(),
+		current.FinalPA(),
+		fan.EnclosureIntake(),
+		fan.EnclosureExtract(),
+		fan.FinalPAintake(),
+		fan.FinalPAextract(),
+	)
+	return str
+}
 
 func shutdownDevices() {
 	power.Shutdown()
@@ -91,10 +96,8 @@ func handleClientRequest(con net.Conn) {
 		}
 
 		// Responding to the client request
-		str := fmt.Sprintf("%v %v %v\n",
-			temperature.Read(),
-			current.Read(),
-			fan.Read())
+		str := readDevices() + "\n"
+
 		if _, err = con.Write([]byte(str)); err != nil {
 			logger.Warn.Printf("failed to respond to client: %v\n", err)
 		}
