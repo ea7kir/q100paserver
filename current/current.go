@@ -5,7 +5,10 @@
 
 package current
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 // TODO: install i2c-tools
 // sudo apt install -y i2c-tools
@@ -43,5 +46,9 @@ func Read() string {
 }
 
 func readPaCurrent() float64 {
-	return 1.3
+	min := 1
+	max := 7
+	r := rand.Intn(max-min) + min
+	return float64(r)
+
 }

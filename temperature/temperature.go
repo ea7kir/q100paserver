@@ -5,7 +5,10 @@
 
 package temperature
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 // DS18B20 TEMPERATURE SENSORS
 // To enable the 1-wire bus add "dtoverlay=w1-gpio" to /boot/config.txt and reboot.
@@ -39,9 +42,15 @@ func Read() string {
 }
 
 func readPreAmp() float64 {
-	return 53.1
+	min := 50
+	max := 55
+	r := rand.Intn(max-min) + min
+	return float64(r)
 }
 
 func readPA() float64 {
-	return 43.8
+	min := 40
+	max := 45
+	r := rand.Intn(max-min) + min
+	return float64(r)
 }

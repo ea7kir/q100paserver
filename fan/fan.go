@@ -7,6 +7,7 @@ package fan
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
@@ -71,25 +72,29 @@ func Read() string {
 }
 
 func readEncIntake() int {
-	// var rpm int
-	rpm := 1001
-	return rpm
+	min := 4000
+	max := 4999
+	r := rand.Intn(max-min) + min
+	return r
 }
 
 func readEncExtract() int {
-	// var rpm int
-	rpm := 1002
-	return rpm
+	min := 4000
+	max := 4999
+	r := rand.Intn(max-min) + min
+	return r
 }
 
 func readPaIntake() int {
-	// var rpm int
-	rpm := 1003
-	return rpm
+	min := 4000
+	max := 4999
+	r := rand.Intn(max-min) + min
+	return r
 }
 
 func readPaExtract() int {
-	// var rpm int
-	rpm := 1004
-	return rpm
+	min := 4000
+	max := 4999
+	r := rand.Intn(max-min) + min
+	return r
 }
