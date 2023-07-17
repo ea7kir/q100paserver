@@ -29,7 +29,7 @@ func configureDevices() {
 }
 
 func readDevices() string {
-	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %4d->%4d, PA %4d->%4d",
+	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d",
 		temperature.PreAmp(),
 		temperature.FinalPA(),
 		current.FinalPA(),

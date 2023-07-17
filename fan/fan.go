@@ -47,7 +47,7 @@ const WithRealtimeEventClock = LineEventClockRealtime
 func configured(j8Pin int) fanType {
 	const deboucePeriod = time.Millisecond
 
-	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.WithDebounce(deboucePeriod), gpiod.WithRealtimeEventClock)
+	l, err := gpiod.RequestLine("gpiochip0", j8Pin /*gpiod.WithDebounce(deboucePeriod),*/, gpiod.WithRealtimeEventClock)
 	if err != nil {
 		logger.Fatal.Panicf("line %v failed: %v", l, err)
 	}
@@ -89,6 +89,26 @@ func FinalPAextract() int64 {
 	return rpmForFan(&encIntake)
 }
 
+// The plan here is to measure the period between 2 pulses and calculate an rpm value.
+// This value will be smoothed into the previous values and the new smoothed value will be returned
 func rpmForFan(fan *fanType) int64 {
+	// 4000 rpm equates to 8000 ppm or 133 pps
+	// ie. 1 pulse every 7.5 milliseconds
+
+	// wait for 1st pulse and record inTime (with a timeout - BUT HOW?)
+
+	// if timeout then fan is not running, so return 0 rpm
+
+	// wait for 2nd pulse and record inTime (with a timeout - BUT HOW?)
+
+	// if timeout then fan is not running, so return 0 rpm
+
+	// period = 2nd - 1st
+
+	// period = A * previous_period + (A - 1) * period (where A is approx 0.9)
+
+	// calculate rpm = period * SOME_CONSTANT
+
+	// return rpm
 	return fan.rpm
 }
