@@ -26,12 +26,12 @@ const (
 	PREAMP_SENSOR_SLAVE_ID = "28-3c01d607d440" // pin 7 GPIO_4
 )
 
-func Configure(pi int) {
+func Configure() {
 	//
 }
 
 func Shutdown() {
-	//
+	// revert lines to input on the way out
 }
 
 // func Read() string {

@@ -30,12 +30,12 @@ const (
 	PA_CURRENT_MAX_AMP   = 10
 )
 
-func Configure(pi int) {
+func Configure() {
 	//
 }
 
 func Shutdown() {
-	//
+	// revert lines to input on the way out
 }
 
 // func Read() string {

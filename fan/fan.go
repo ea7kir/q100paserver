@@ -6,7 +6,8 @@
 package fan
 
 import (
-	"math/rand"
+	"q100paserver/logger"
+	"time"
 
 	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
@@ -22,78 +23,72 @@ const (
 
 )
 
-var (
-	encIntake  *gpiod.Line
-	encExtract *gpiod.Line
-	paIntake   *gpiod.Line
-	paExtract  *gpiod.Line
+type (
+	fanType struct {
+		line *gpiod.Line
+		rpm  int64
+	}
 )
 
-func Configure(pi int) {
-	encIntakeLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p29, gpiod.AsInput)
+var (
+	encIntake  = fanType{} // TODO: use pointer !!!!!!!!!!
+	encExtract = fanType{}
+	paIntake   = fanType{}
+	paExtract  = fanType{}
+)
+
+/*
+WithDebounce(period time.Duration) DebounceOption // DebounceOption is of type time.Duration
+const WithFallingEdge = LineEdgeFalling
+const WithRisingEdge = LineEdgeRising
+const WithRealtimeEventClock = LineEventClockRealtime
+*/
+
+func configured(j8Pin int) fanType {
+	const deboucePeriod = time.Millisecond
+
+	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.WithDebounce(deboucePeriod), gpiod.WithRealtimeEventClock)
 	if err != nil {
-		panic(err)
+		logger.Fatal.Panicf("line %v failed: %v", l, err)
 	}
-	encIntake = encIntakeLine
-	encExtractLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p31, gpiod.AsInput)
-	if err != nil {
-		panic(err)
-	}
-	encExtract = encExtractLine
-	paIntakeLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p33, gpiod.AsInput)
-	if err != nil {
-		panic(err)
-	}
-	paIntake = paIntakeLine
-	paExtractLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p35, gpiod.AsInput)
-	if err != nil {
-		panic(err)
-	}
-	paExtract = paExtractLine
+	return fanType{line: l}
+}
+
+func Configure() {
+	encIntake = configured(rpi.J8p29)
+	encExtract = configured(rpi.J8p31)
+	paIntake = configured(rpi.J8p33)
+	paExtract = configured(rpi.J8p35)
 }
 
 func Shutdown() {
 	// revert lines to input on the way out
-	encIntake.Reconfigure(gpiod.AsInput)
-	encIntake.Close()
-	encExtract.Reconfigure(gpiod.AsInput)
-	encExtract.Close()
-	paIntake.Reconfigure(gpiod.AsInput)
-	paIntake.Close()
-	paExtract.Reconfigure(gpiod.AsInput)
-	paExtract.Close()
+	encIntake.line.Reconfigure(gpiod.AsInput)
+	encIntake.line.Close()
+	encExtract.line.Reconfigure(gpiod.AsInput)
+	encExtract.line.Close()
+	paIntake.line.Reconfigure(gpiod.AsInput)
+	paIntake.line.Close()
+	paExtract.line.Reconfigure(gpiod.AsInput)
+	paExtract.line.Close()
 }
 
-// func Read() string {
-// 	str := fmt.Sprintf("ENC %v->%v, PA %v->%v",
-// 		readEncIntake(), readEncExtract(), readPaIntake(), readPaExtract())
-// 	return str
-// }
-
-func EnclosureIntake() int {
-	min := 4000
-	max := 4999
-	r := rand.Intn(max-min) + min
-	return r
+func EnclosureIntake() int64 {
+	return rpmForFan(&encIntake)
 }
 
-func EnclosureExtract() int {
-	min := 4000
-	max := 4999
-	r := rand.Intn(max-min) + min
-	return r
+func EnclosureExtract() int64 {
+	return rpmForFan(&encIntake)
 }
 
-func FinalPAintake() int {
-	min := 4000
-	max := 4999
-	r := rand.Intn(max-min) + min
-	return r
+func FinalPAintake() int64 {
+	return rpmForFan(&encIntake)
 }
 
-func FinalPAextract() int {
-	min := 4000
-	max := 4999
-	r := rand.Intn(max-min) + min
-	return r
+func FinalPAextract() int64 {
+	return rpmForFan(&encIntake)
+}
+
+func rpmForFan(fan *fanType) int64 {
+	return fan.rpm
 }

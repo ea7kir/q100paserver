@@ -30,7 +30,7 @@ var (
 	isUp     bool
 )
 
-func Configure(pi int) {
+func Configure() {
 	relay28vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p37, gpiod.AsOutput(0))
 	if err != nil {
 		panic(err)
@@ -49,6 +49,7 @@ func Configure(pi int) {
 }
 
 func Shutdown() {
+	// revert lines to input on the way out
 	if isUp {
 		Down()
 	}

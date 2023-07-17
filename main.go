@@ -22,11 +22,10 @@ import (
 const PORT = ":9999" // same as "0.0.0.0:9999"
 
 func configureDevices() {
-	pi := 0
-	power.Configure(pi)
-	current.Configure(pi)
-	temperature.Configure(pi)
-	fan.Configure(pi)
+	power.Configure()
+	current.Configure()
+	temperature.Configure()
+	fan.Configure()
 }
 
 func readDevices() string {
