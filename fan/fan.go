@@ -7,7 +7,6 @@ package fan
 
 import (
 	"q100paserver/logger"
-	"time"
 
 	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
@@ -45,7 +44,7 @@ const WithRealtimeEventClock = LineEventClockRealtime
 */
 
 func configured(j8Pin int) fanType {
-	const deboucePeriod = time.Millisecond
+	//const deboucePeriod = time.Millisecond
 
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin /*gpiod.WithDebounce(deboucePeriod),*/, gpiod.WithRealtimeEventClock)
 	if err != nil {
