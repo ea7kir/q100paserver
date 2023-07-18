@@ -33,6 +33,15 @@ const (
 	kFinalPaMaxAmps = 10
 	kDefaultSDAPin  = rpi.J8p3
 	kDefaultSCLPin  = rpi.J8p5
+
+	INA226_RESET                     uint16 = 0x8000 // UInt16
+	INA226_REG_CALIBRATION           uint8  = 0x05   // UInt8
+	INA226_REG_CONFIGURATION         uint8  = 0x00   // UInt8
+	INA226_TIME_8MS                  uint8  = 7      // 8.244ms UInt8
+	INA226_AVERAGES_16               uint8  = 2      // UInt8
+	INA226_MODE_SHUNT_BUS_CONTINUOUS uint8  = 7      // UI
+	INA226_REG_BUS_VOLTAGE           uint8  = 0x02   // UInt8
+	INA226_REG_CURRENT               uint8  = 0x04   // UInt8
 )
 
 type (
@@ -76,6 +85,30 @@ func Shutdown() {
 
 func FinalPA() float64 {
 	return ampsForSensor(&finalPA)
+}
+
+func byteSwapped(w uint16) uint16 {
+	// 16 bit word byte swap from TxServer
+	b1 := w >> 8
+	b2 := w & 0xFF
+	result := b2 << 8
+	result |= b1
+	return result
+}
+
+const i2c_bus = 1
+
+func i2c_open(bus uint8, address uint8) {
+	//
+}
+
+func i2c_write_word_data(b uint8, w uint16) {
+	//
+}
+
+func i2c_read_word_data(b uint8, w uint16) uint16 {
+	var d uint16
+	return d
 }
 
 func ampsForSensor(sen *ina226Type) float64 {
