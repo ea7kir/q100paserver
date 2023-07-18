@@ -27,17 +27,18 @@ const (
 type (
 	fanType struct {
 		line   *gpiod.Line
-		lock   sync.Mutex
+		mu     sync.Mutex
 		newRpm int64
 		rpm    int64
+		id     int
 	}
 )
 
 var (
-	encIntake  = fanType{} // TODO: use pointer !!!!!!!!!!
-	encExtract = fanType{}
-	paIntake   = fanType{}
-	paExtract  = fanType{}
+	encIntake  fanType //= fanType{id: 1} // TODO: use pointer !!!!!!!!!!
+	encExtract fanType //= fanType{id: 2}
+	paIntake   fanType //= fanType{id: 3}
+	paExtract  fanType //= fanType{id: 4}
 )
 
 /*
@@ -50,21 +51,21 @@ const WithRisingEdge = LineEdgeRising
 const WithRealtimeEventClock = LineEventClockRealtime
 */
 
-func configured(j8Pin int) fanType {
+func configured(j8Pin int, id int) fanType {
 	// const deboucePeriod = 3 * time.Millisecond
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
 		logger.Fatal.Panicf("line %v failed: %v", l, err)
 	}
-	return fanType{line: l}
+	return fanType{line: l, id: id}
 }
 
 func Configure() {
-	encIntake = configured(rpi.J8p29)
-	encExtract = configured(rpi.J8p31)
-	paIntake = configured(rpi.J8p33)
-	paExtract = configured(rpi.J8p35)
+	encIntake = configured(rpi.J8p29, 1)
+	encExtract = configured(rpi.J8p31, 2)
+	paIntake = configured(rpi.J8p33, 3)
+	paExtract = configured(rpi.J8p35, 4)
 }
 
 func Shutdown() {
@@ -84,36 +85,34 @@ func EnclosureIntake() int64 {
 }
 
 func EnclosureExtract() int64 {
-	return rpmForFan(&encIntake)
+	return rpmForFan(&encExtract)
 }
 
 func FinalPAintake() int64 {
-	return rpmForFan(&encIntake)
+	return rpmForFan(&paIntake)
 }
 
 func FinalPAextract() int64 {
-	return rpmForFan(&encIntake)
+	return rpmForFan(&paExtract)
 }
 
 func rpmForFan(fan *fanType) int64 {
 	// 4000 rpm equates to 8000 ppm or 133 pps
 	// ie. 1 pulse every 7.5 milliseconds
 
-	// runs once per client client request
+	// runs once per client request for each fan
 	func(fan *fanType) {
-		count := 0
 		fan.newRpm = 0
+		const loopTime = 1003 * time.Millisecond
 		var i int
 		for start := time.Now(); ; {
 			// no need to checl end time quite so often, slow it down by 10 iterations
 			if i%10 == 0 {
-				if time.Since(start) > time.Second {
-					logger.Info.Println("break")
+				if time.Since(start) > loopTime {
 					break
 				}
 			}
 			i++
-			// count chnges for 60 seconds
 			v1, err := fan.line.Value()
 			if err != nil {
 				logger.Warn.Printf(" %v", err)
@@ -124,16 +123,12 @@ func rpmForFan(fan *fanType) int64 {
 				logger.Warn.Printf(" %v", err)
 			}
 			if v1 != v2 {
-				count += 1
+				fan.newRpm += 30
 			}
 		}
-		// calc newNpm value
-		fan.newRpm = int64(count / 133)
-		// nerge with rpm
-		// fan.newRpm = 0.9*fan.newRpm + 0.1*fan.rpm
-		fan.lock.Lock()
+		fan.mu.Lock()
 		fan.rpm = fan.newRpm
-		fan.lock.Unlock()
+		fan.mu.Unlock()
 	}(fan)
 
 	return fan.rpm
