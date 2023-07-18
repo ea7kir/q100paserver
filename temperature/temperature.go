@@ -6,8 +6,10 @@
 package temperature
 
 import (
+	"q100paserver/logger"
 	"sync"
 
+	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
 )
 
@@ -27,12 +29,12 @@ import (
 const (
 	kPreampSensorAddress = "28-3c01d607d440"
 	kPaSensorAddress     = "28-3c01d607e348"
-	kDefaultGpioPin      = rpi.J8p7
+	kDefault1wirePin     = rpi.J8p7
 )
 
 type (
 	ds18b20Type struct {
-		// line    *gpiod.Line
+		line    *gpiod.Line
 		mu      sync.Mutex
 		newtemp float64
 		temp    float64
@@ -47,12 +49,17 @@ var (
 
 func newDs18b20(j8Pin int, slaveId string) ds18b20Type {
 	// not using gpiod yet
-	return ds18b20Type{slaveId: slaveId}
+	line, err := gpiod.RequestLine("gpiochip0", kDefault1wirePin, gpiod.AsInput)
+	if err != nil {
+		logger.Fatal.Panicf("Request 1-Wire failed: %v", err)
+	}
+
+	return ds18b20Type{line: line, slaveId: slaveId}
 }
 
 func Configure() {
-	preAmp = newDs18b20(kDefaultGpioPin, kPreampSensorAddress)
-	finalPA = newDs18b20(kDefaultGpioPin, kPaSensorAddress)
+	preAmp = newDs18b20(kDefault1wirePin, kPreampSensorAddress)
+	finalPA = newDs18b20(kDefault1wirePin, kPaSensorAddress)
 }
 
 func Shutdown() {

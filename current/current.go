@@ -6,9 +6,11 @@
 package current
 
 import (
+	"q100paserver/logger"
 	"sync"
 
 	"github.com/warthog618/gpiod"
+	"github.com/warthog618/gpiod/device/rpi"
 )
 
 // TODO: install i2c-tools
@@ -27,9 +29,11 @@ import (
 // TRY https://pkg.go.dev/github.com/Fede85/go-ina226@v0.0.0-20160609112003-36bc433ce086
 
 const (
-	PA_CURRENT_ADDRESS   = 0x40
-	PA_CURRENT_SHUNT_OHM = 0.0021 // modified from 0,002 to get correct current reading
-	PA_CURRENT_MAX_AMP   = 10
+	kFinalPaAddrees = 0x40
+	kFinalPaShunt   = 0.0021 // modified from 0,002 to get correct current reading
+	kFinalPaMaxAmps = 10
+	kDefaultSDAPin  = rpi.J8p3
+	kDefaultSCLPin  = rpi.J8p5
 )
 
 type (
@@ -49,13 +53,21 @@ var (
 	finalPA ina226Type
 )
 
-func newIna226() ina226Type {
-
-	return ina226Type{}
+func newIna226(address int8, shunt float64, maxAmps float64) ina226Type {
+	// not using gpiod yet
+	lineSDA, err := gpiod.RequestLine("gpiochip0", kDefaultSDAPin, gpiod.AsInput)
+	if err != nil {
+		logger.Fatal.Panicf("Request lineSDA failed: %v", err)
+	}
+	lineSCL, err := gpiod.RequestLine("gpiochip0", kDefaultSCLPin, gpiod.AsInput)
+	if err != nil {
+		logger.Fatal.Panicf("Request lineSCL failed: %v", err)
+	}
+	return ina226Type{lineSDA: lineSDA, lineSCL: lineSCL, address: address, shunt: shunt, maxAmps: maxAmps}
 }
 
 func Configure() {
-	finalPA = newIna226()
+	finalPA = newIna226(kFinalPaAddrees, kFinalPaShunt, kFinalPaMaxAmps)
 }
 
 func Shutdown() {
