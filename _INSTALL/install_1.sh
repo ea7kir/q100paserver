@@ -22,6 +22,14 @@ rfkill block 1
 
 echo
 echo "-------------------------------"
+echo "-- Enable 1-Wire and I2C"
+echo "-------------------------------"
+echo
+
+echo "TODO"
+
+echo
+echo "-------------------------------"
 echo "-- Setting .profile"
 echo "-------------------------------"
 echo

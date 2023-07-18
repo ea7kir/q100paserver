@@ -15,13 +15,11 @@ import (
 )
 
 const (
-	// FAN SENSORS
-	// 1k0 pull-up resistors on sensor lines to 3.3v
-	ENCLOSURE_INTAKE_FAN_GPIO  = 5  // pin 29 GPIO_5
-	ENCLOSURE_EXTRACT_FAN_GPIO = 6  // pin 31 GPIO_6
-	PA_INTAKE_FAN_GPIO         = 13 // pin 33 GPIO_13
-	PA_EXTRACT_FAN_GPIO        = 19 // pin 35 GPIO_19
-
+	// FAN SENSORS with 1k0 pull-up resistors on sensor lines to 3.3v
+	kEncIntakePin  = rpi.J8p29 // pin 29 GPIO_5
+	kEncExtractPin = rpi.J8p31 // pin 31 GPIO_6
+	kPaIntakePin   = rpi.J8p33 // pin 33 GPIO_13
+	kPaExtractPin  = rpi.J8p35 // pin 35 GPIO_19
 )
 
 type (
@@ -30,15 +28,15 @@ type (
 		mu     sync.Mutex
 		newRpm int64
 		rpm    int64
-		id     int
 	}
 )
 
 var (
-	encIntake  fanType //= fanType{id: 1} // TODO: use pointer !!!!!!!!!!
-	encExtract fanType //= fanType{id: 2}
-	paIntake   fanType //= fanType{id: 3}
-	paExtract  fanType //= fanType{id: 4}
+	// TODO: use pointers ???
+	encIntake  fanType
+	encExtract fanType
+	paIntake   fanType
+	paExtract  fanType
 )
 
 /*
@@ -51,21 +49,21 @@ const WithRisingEdge = LineEdgeRising
 const WithRealtimeEventClock = LineEventClockRealtime
 */
 
-func configured(j8Pin int, id int) fanType {
+func newFan(j8Pin int) fanType {
 	// const deboucePeriod = 3 * time.Millisecond
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
 		logger.Fatal.Panicf("line %v failed: %v", l, err)
 	}
-	return fanType{line: l, id: id}
+	return fanType{line: l}
 }
 
 func Configure() {
-	encIntake = configured(rpi.J8p29, 1)
-	encExtract = configured(rpi.J8p31, 2)
-	paIntake = configured(rpi.J8p33, 3)
-	paExtract = configured(rpi.J8p35, 4)
+	encIntake = newFan(kEncIntakePin)
+	encExtract = newFan(kEncExtractPin)
+	paIntake = newFan(kPaIntakePin)
+	paExtract = newFan(kPaExtractPin)
 }
 
 func Shutdown() {

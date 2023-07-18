@@ -6,7 +6,9 @@
 package temperature
 
 import (
-	"math/rand"
+	"sync"
+
+	"github.com/warthog618/gpiod/device/rpi"
 )
 
 // DS18B20 TEMPERATURE SENSORS
@@ -21,35 +23,56 @@ import (
 
 // TRY https://pkg.go.dev/periph.io/x/conn/v3/onewire
 
+// 'ls /sys/bus/w1/devices/' on my setup yeilds the floowing...
 const (
-	PA_SENSOR_SLAVE_ID     = "28-3c01d607e348" // pin 7 GPIO_4
-	PREAMP_SENSOR_SLAVE_ID = "28-3c01d607d440" // pin 7 GPIO_4
+	kPreampSensorAddress = "28-3c01d607d440"
+	kPaSensorAddress     = "28-3c01d607e348"
+	kDefaultGpioPin      = rpi.J8p7
 )
 
+type (
+	ds18b20Type struct {
+		// line    *gpiod.Line
+		mu      sync.Mutex
+		newtemp float64
+		temp    float64
+		slaveId string
+	}
+)
+
+var (
+	preAmp  ds18b20Type
+	finalPA ds18b20Type
+)
+
+func newDs18b20(j8Pin int, slaveId string) ds18b20Type {
+	// not using gpiod yet
+	return ds18b20Type{slaveId: slaveId}
+}
+
 func Configure() {
-	//
+	preAmp = newDs18b20(kDefaultGpioPin, kPreampSensorAddress)
+	finalPA = newDs18b20(kDefaultGpioPin, kPaSensorAddress)
 }
 
 func Shutdown() {
 	// revert lines to input on the way out
 }
 
-// func Read() string {
-// 	str := fmt.Sprintf("Pre %4.1f°C PA %4.1f°C",
-// 		readPreAmp(), readPA())
-// 	return str
-// }
-
 func PreAmp() float64 {
-	min := 50
-	max := 55
-	r := rand.Intn(max-min) + min
-	return float64(r)
+	return tempForSensor(&preAmp)
 }
 
 func FinalPA() float64 {
-	min := 40
-	max := 45
-	r := rand.Intn(max-min) + min
-	return float64(r)
+	return tempForSensor(&finalPA)
+}
+
+func tempForSensor(sen *ds18b20Type) float64 {
+
+	sen.newtemp = 0.0
+
+	sen.mu.Lock()
+	sen.temp = sen.newtemp
+	sen.mu.Unlock()
+	return sen.temp
 }

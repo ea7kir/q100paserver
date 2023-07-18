@@ -6,7 +6,9 @@
 package current
 
 import (
-	"math/rand"
+	"sync"
+
+	"github.com/warthog618/gpiod"
 )
 
 // TODO: install i2c-tools
@@ -30,24 +32,46 @@ const (
 	PA_CURRENT_MAX_AMP   = 10
 )
 
+type (
+	ina226Type struct {
+		lineSDA *gpiod.Line
+		lineSCL *gpiod.Line
+		mu      sync.Mutex
+		newAmps float64
+		amps    float64
+		address int8
+		shunt   float64
+		maxAmps float64
+	}
+)
+
+var (
+	finalPA ina226Type
+)
+
+func newIna226() ina226Type {
+
+	return ina226Type{}
+}
+
 func Configure() {
-	//
+	finalPA = newIna226()
 }
 
 func Shutdown() {
 	// revert lines to input on the way out
 }
 
-// func Read() string {
-// 	str := fmt.Sprintf("%3.1fA",
-// 		readPaCurrent())
-// 	return str
-// }
-
 func FinalPA() float64 {
-	min := 1
-	max := 7
-	r := rand.Intn(max-min) + min
-	return float64(r)
+	return ampsForSensor(&finalPA)
+}
 
+func ampsForSensor(sen *ina226Type) float64 {
+
+	sen.newAmps = 0.0
+
+	sen.mu.Lock()
+	sen.amps = sen.newAmps
+	sen.mu.Unlock()
+	return sen.amps
 }
