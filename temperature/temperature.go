@@ -56,6 +56,7 @@ func newDs18b20(j8Pin int, slaveId string) ds18b20Type {
 	return ds18b20Type{line: nil, slaveId: slaveId}
 }
 
+// oops!
 func Configure() {
 	preAmp = newDs18b20(kDefault1wirePin, kPreampSensorAddress)
 	finalPA = newDs18b20(kDefault1wirePin, kPaSensorAddress)
