@@ -7,6 +7,8 @@ package fan
 
 import (
 	"q100paserver/logger"
+	"sync"
+	"time"
 
 	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
@@ -24,8 +26,10 @@ const (
 
 type (
 	fanType struct {
-		line *gpiod.Line
-		rpm  int64
+		line   *gpiod.Line
+		lock   sync.Mutex
+		newRpm int64
+		rpm    int64
 	}
 )
 
@@ -38,15 +42,18 @@ var (
 
 /*
 WithDebounce(period time.Duration) DebounceOption // DebounceOption is of type time.Duration
+WithEventHandler(eh)
+WithRisingEdge
+WithMonotonicEventClock
 const WithFallingEdge = LineEdgeFalling
 const WithRisingEdge = LineEdgeRising
 const WithRealtimeEventClock = LineEventClockRealtime
 */
 
 func configured(j8Pin int) fanType {
-	//const deboucePeriod = time.Millisecond
-
-	l, err := gpiod.RequestLine("gpiochip0", j8Pin /*gpiod.WithDebounce(deboucePeriod),*/, gpiod.WithRealtimeEventClock)
+	// const deboucePeriod = 3 * time.Millisecond
+	// WithDebounce(deboucePeriod)
+	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
 		logger.Fatal.Panicf("line %v failed: %v", l, err)
 	}
@@ -88,26 +95,46 @@ func FinalPAextract() int64 {
 	return rpmForFan(&encIntake)
 }
 
-// The plan here is to measure the period between 2 pulses and calculate an rpm value.
-// This value will be smoothed into the previous values and the new smoothed value will be returned
 func rpmForFan(fan *fanType) int64 {
 	// 4000 rpm equates to 8000 ppm or 133 pps
 	// ie. 1 pulse every 7.5 milliseconds
 
-	// wait for 1st pulse and record inTime (with a timeout - BUT HOW?)
+	// runs once per client client request
+	func(fan *fanType) {
+		count := 0
+		fan.newRpm = 0
+		var i int
+		for start := time.Now(); ; {
+			// no need to checl end time quite so often, slow it down by 10 iterations
+			if i%10 == 0 {
+				if time.Since(start) > time.Second {
+					logger.Info.Println("break")
+					break
+				}
+			}
+			i++
+			// count chnges for 60 seconds
+			v1, err := fan.line.Value()
+			if err != nil {
+				logger.Warn.Printf(" %v", err)
+			}
+			time.Sleep(3 * time.Millisecond)
+			v2, err := fan.line.Value()
+			if err != nil {
+				logger.Warn.Printf(" %v", err)
+			}
+			if v1 != v2 {
+				count += 1
+			}
+		}
+		// calc newNpm value
+		fan.newRpm = int64(count / 133)
+		// nerge with rpm
+		// fan.newRpm = 0.9*fan.newRpm + 0.1*fan.rpm
+		fan.lock.Lock()
+		fan.rpm = fan.newRpm
+		fan.lock.Unlock()
+	}(fan)
 
-	// if timeout then fan is not running, so return 0 rpm
-
-	// wait for 2nd pulse and record inTime (with a timeout - BUT HOW?)
-
-	// if timeout then fan is not running, so return 0 rpm
-
-	// period = 2nd - 1st
-
-	// period = A * previous_period + (A - 1) * period (where A is approx 0.9)
-
-	// calculate rpm = period * SOME_CONSTANT
-
-	// return rpm
 	return fan.rpm
 }
