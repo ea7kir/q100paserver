@@ -66,7 +66,6 @@ func newIna226(address int8, shunt float64, maxAmps float64) ina226Type {
 	return ina226Type{lineSDA: nil, lineSCL: nil, address: address, shunt: shunt, maxAmps: maxAmps}
 }
 
-// oops!
 func Configure() {
 	finalPA = newIna226(kFinalPaAddrees, kFinalPaShunt, kFinalPaMaxAmps)
 }
