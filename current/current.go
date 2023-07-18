@@ -6,7 +6,6 @@
 package current
 
 import (
-	"q100paserver/logger"
 	"sync"
 
 	"github.com/warthog618/gpiod"
@@ -55,15 +54,16 @@ var (
 
 func newIna226(address int8, shunt float64, maxAmps float64) ina226Type {
 	// not using gpiod yet
-	lineSDA, err := gpiod.RequestLine("gpiochip0", kDefaultSDAPin, gpiod.AsInput)
-	if err != nil {
-		logger.Fatal.Panicf("Request lineSDA failed: %v", err)
-	}
-	lineSCL, err := gpiod.RequestLine("gpiochip0", kDefaultSCLPin, gpiod.AsInput)
-	if err != nil {
-		logger.Fatal.Panicf("Request lineSCL failed: %v", err)
-	}
-	return ina226Type{lineSDA: lineSDA, lineSCL: lineSCL, address: address, shunt: shunt, maxAmps: maxAmps}
+	// lineSDA, err := gpiod.RequestLine("gpiochip0", kDefaultSDAPin, gpiod.AsInput)
+	// if err != nil {
+	// 	logger.Fatal.Panicf("Request lineSDA failed: %v", err)
+	// }
+	// lineSCL, err := gpiod.RequestLine("gpiochip0", kDefaultSCLPin, gpiod.AsInput)
+	// if err != nil {
+	// 	logger.Fatal.Panicf("Request lineSCL failed: %v", err)
+	// }
+	// return ina226Type{lineSDA: lineSDA, lineSCL: lineSCL, address: address, shunt: shunt, maxAmps: maxAmps}
+	return ina226Type{lineSDA: nil, lineSCL: nil, address: address, shunt: shunt, maxAmps: maxAmps}
 }
 
 func Configure() {

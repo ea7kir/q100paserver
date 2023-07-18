@@ -6,7 +6,6 @@
 package temperature
 
 import (
-	"q100paserver/logger"
 	"sync"
 
 	"github.com/warthog618/gpiod"
@@ -49,12 +48,12 @@ var (
 
 func newDs18b20(j8Pin int, slaveId string) ds18b20Type {
 	// not using gpiod yet
-	line, err := gpiod.RequestLine("gpiochip0", kDefault1wirePin, gpiod.AsInput)
-	if err != nil {
-		logger.Fatal.Panicf("Request 1-Wire failed: %v", err)
-	}
-
-	return ds18b20Type{line: line, slaveId: slaveId}
+	// line, err := gpiod.RequestLine("gpiochip0", kDefault1wirePin, gpiod.AsInput)
+	// if err != nil {
+	// 	logger.Fatal.Panicf("Request 1-Wire failed: %v", err)
+	// }
+	// return ds18b20Type{line: line, slaveId: slaveId}
+	return ds18b20Type{line: nil, slaveId: slaveId}
 }
 
 func Configure() {
