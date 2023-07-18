@@ -6,6 +6,10 @@
 package temperature
 
 import (
+	"os"
+	"q100paserver/logger"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/warthog618/gpiod"
@@ -74,8 +78,80 @@ func FinalPA() float64 {
 }
 
 func tempForSensor(sen *ds18b20Type) float64 {
+	/*
+	   Python
 
-	sen.newtemp = 0.0
+	   	time.sleep(0.1) # allow settling time
+	   	temperature = '? °C'
+	   	#pigpio.exceptions = False
+	   	try:
+	   	    sensor = '/sys/bus/w1/devices/' + self.slave_id + '/w1_slave'
+	   	    h = self.pi.file_open(sensor, pigpio.FILE_READ)
+	   	    c, data = self.pi.file_read(h, 1000) # 1000 is plenty to read full file.
+	   	    self.pi.file_close(h)
+	   	    """
+	   	    Typical file contents
+	   	    73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
+	   	    73 01 4b 46 7f ff 0d 10 41 t=23187
+	   	    """
+	   	    # NOTE: to get this working, I needed to treat str as byte objects
+	   	    if b'YES' in data:
+	   	        (discard, sep, reading) = data.partition(b' t=')
+	   	        float_temperature = float(reading) / 1000.0
+	   	        temperature = '{:.1f}°C'.format(float_temperature)
+	   	except:
+	   	    pass
+	   	#pigpio.exceptions = True
+	   	return temperature
+	*/
+
+	file := "/sys/bus/w1/devices/" + sen.slaveId + "/w1_slave"
+
+	// this should read 75 bytes
+	data, err := os.ReadFile(file)
+	if err != nil {
+		logger.Error.Printf("Failed to read file: %v", file)
+		sen.newtemp = 0
+		sen.mu.Lock()
+		sen.temp = sen.newtemp
+		sen.mu.Unlock()
+		return sen.temp
+	}
+
+	// convert bytes to string
+	str := string(data)
+
+	//fmt.Println(str)
+
+	if !strings.Contains(str, "YES") {
+		logger.Warn.Printf("1-Wire %s did not contain YES", sen.slaveId)
+		sen.newtemp = 0
+		sen.mu.Lock()
+		sen.temp = sen.newtemp
+		sen.mu.Unlock()
+		return sen.temp
+	}
+
+	i := strings.LastIndex(str, "t=")
+	if i == -1 {
+		logger.Warn.Printf("1-Wire %s did not contain t=", sen.slaveId)
+		sen.newtemp = 0
+		sen.mu.Lock()
+		sen.temp = sen.newtemp
+		sen.mu.Unlock()
+		return sen.temp
+	}
+
+	c, err := strconv.ParseFloat(str[i+2:len(str)-1], 64)
+	if err != nil {
+		sen.newtemp = 0
+		sen.mu.Lock()
+		sen.temp = sen.newtemp
+		sen.mu.Unlock()
+		return sen.temp
+	}
+
+	sen.newtemp = c / 1000.0
 
 	sen.mu.Lock()
 	sen.temp = sen.newtemp
