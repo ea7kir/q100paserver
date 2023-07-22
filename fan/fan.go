@@ -54,7 +54,7 @@ func newFan(j8Pin int) fanType {
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
-		logger.Fatal.Panicf("line %v failed: %v", l, err)
+		logger.Fatal("line %v failed: %v", l, err)
 	}
 	return fanType{line: l}
 }
@@ -113,12 +113,12 @@ func rpmForFan(fan *fanType) int64 {
 			i++
 			v1, err := fan.line.Value()
 			if err != nil {
-				logger.Warn.Printf(" %v", err)
+				logger.Warn(" %v", err)
 			}
 			time.Sleep(3 * time.Millisecond)
 			v2, err := fan.line.Value()
 			if err != nil {
-				logger.Warn.Printf(" %v", err)
+				logger.Warn(" %v", err)
 			}
 			if v1 != v2 {
 				fan.newRpm += 30
