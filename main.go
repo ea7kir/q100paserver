@@ -69,7 +69,7 @@ func shutdownDevices() {
 func handleClientRequest(con net.Conn) {
 	defer con.Close()
 
-	logger.Info("got connection from: %v\n", con.RemoteAddr())
+	logger.Info.Printf("got connection from: %v\n", con.RemoteAddr())
 	power.Up()
 	clientReader := bufio.NewReader(con)
 
@@ -80,16 +80,16 @@ func handleClientRequest(con net.Conn) {
 		case nil:
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
-				logger.Info("Connection closed with CLOSE")
+				logger.Info.Printf("Connection closed with CLOSE")
 				power.Down()
 				return
 			}
 		case io.EOF:
-			logger.Info("Connection closed with io.EOF")
+			logger.Info.Printf("Connection closed with io.EOF")
 			power.Down()
 			return
 		default:
-			logger.Warn("Connection closed abnormally: %v", err)
+			logger.Warn.Printf("Connection closed abnormally: %v", err)
 			power.Down()
 			return
 		}
@@ -98,7 +98,7 @@ func handleClientRequest(con net.Conn) {
 		str := readDevices() + "\n"
 
 		if _, err = con.Write([]byte(str)); err != nil {
-			logger.Warn("failed to respond to client: %v\n", err)
+			logger.Warn.Printf("failed to respond to client: %v\n", err)
 		}
 	}
 }
@@ -111,13 +111,13 @@ func runServer() {
 	}
 	defer listener.Close()
 
-	logger.Info("Q-100 PA Server has started on %v", listener.Addr().String())
+	logger.Info.Printf("Q-100 PA Server has started on %v", listener.Addr().String())
 
 	for {
 		con, err := listener.Accept()
 		if err != nil {
 			// log.Println(err)
-			logger.Warn("Accept failed: %v\n", err)
+			logger.Warn.Printf("Accept failed: %v\n", err)
 			continue
 		}
 		// If you want, you can increment a counter here and inject to handleClientRequest below as client identifier
@@ -126,10 +126,10 @@ func runServer() {
 }
 
 func main() {
-	logger.Info("Q-100 PA Server has started")
+	logger.Info.Printf("Q-100 PA Server has started")
 	configureDevices()
 	runServer()
 	shutdownDevices()
-	logger.Info("Q-100 PA Server has stopped")
+	logger.Info.Printf("Q-100 PA Server has stopped")
 	// TODO: shutdown or reboot Rasberry Pi
 }

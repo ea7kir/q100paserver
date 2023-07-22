@@ -85,7 +85,7 @@ func tempForSensor(sen *ds18b20Type) float64 {
 	sen.newtemp = 0.0
 	data, err := os.ReadFile(file) // 75 bytes
 	if err != nil {
-		logger.Error("1-Wire %s failed to read\n%v", sen.slaveId, err)
+		logger.Error.Printf("1-Wire %s failed to read\n%v", sen.slaveId, err)
 		sen.mu.Lock()
 		sen.temp = sen.newtemp
 		sen.mu.Unlock()
@@ -94,7 +94,7 @@ func tempForSensor(sen *ds18b20Type) float64 {
 	// convert bytes to string
 	str := string(data)
 	if !strings.Contains(str, "YES") {
-		logger.Warn("1-Wire %s did not contain YES", sen.slaveId)
+		logger.Warn.Printf("1-Wire %s did not contain YES", sen.slaveId)
 		sen.mu.Lock()
 		sen.temp = sen.newtemp
 		sen.mu.Unlock()
@@ -102,7 +102,7 @@ func tempForSensor(sen *ds18b20Type) float64 {
 	}
 	i := strings.LastIndex(str, "t=")
 	if i == -1 {
-		logger.Warn("1-Wire %s did not contain t=", sen.slaveId)
+		logger.Warn.Printf("1-Wire %s did not contain t=", sen.slaveId)
 		sen.mu.Lock()
 		sen.temp = sen.newtemp
 		sen.mu.Unlock()
@@ -110,7 +110,7 @@ func tempForSensor(sen *ds18b20Type) float64 {
 	}
 	tempC, err := strconv.ParseFloat(str[i+2:len(str)-1], 64)
 	if err != nil {
-		logger.Warn("1-Wire %s invalid temperature\n%v", sen.slaveId, err)
+		logger.Warn.Printf("1-Wire %s invalid temperature\n%v", sen.slaveId, err)
 		sen.mu.Lock()
 		sen.temp = sen.newtemp
 		sen.mu.Unlock()
