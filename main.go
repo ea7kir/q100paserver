@@ -9,7 +9,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"q100paserver/current"
 	"q100paserver/fan"
@@ -28,6 +27,8 @@ func configureDevices() {
 	fan.Configure()
 }
 
+// TODO: encode to json and include a version number (use json: tags).
+// Could also have the client requst a version number to match
 func readDevices() string {
 	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d",
 		temperature.PreAmp(),
@@ -94,7 +95,7 @@ func handleClientRequest(con net.Conn) {
 			return
 		}
 
-		// Responding to the client request
+		// Responding to the client request (and check verion number match)
 		str := readDevices() + "\n"
 
 		if _, err = con.Write([]byte(str)); err != nil {
@@ -107,7 +108,7 @@ func handleClientRequest(con net.Conn) {
 func runServer() {
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
-		log.Fatalln(err) // TODO: sort out Fatal
+		logger.Fatal.Fatalf("Failed to create listener: %v", err) // TODO: sort out Fatal
 	}
 	defer listener.Close()
 

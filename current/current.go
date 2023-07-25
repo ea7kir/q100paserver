@@ -3,13 +3,13 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package current
+package current // ina266devices
+
+// TODO: impleement an INA266 device
 
 import (
 	"sync"
-
-	"github.com/warthog618/gpiod"
-	"github.com/warthog618/gpiod/device/rpi"
+	// "github.com/warthog618/gpiod/device/rpi"
 )
 
 // TODO: install i2c-tools
@@ -31,8 +31,8 @@ const (
 	kFinalPaAddrees = 0x40
 	kFinalPaShunt   = 0.0021 // modified from 0,002 to get correct current reading
 	kFinalPaMaxAmps = 10
-	kDefaultSDAPin  = rpi.J8p3
-	kDefaultSCLPin  = rpi.J8p5
+	// kDefaultSDAPin  = rpi.J8p3
+	// kDefaultSCLPin  = rpi.J8p5
 
 	INA226_RESET                     uint16 = 0x8000 // UInt16
 	INA226_REG_CALIBRATION           uint8  = 0x05   // UInt8
@@ -46,8 +46,6 @@ const (
 
 type (
 	ina226Type struct {
-		lineSDA *gpiod.Line
-		lineSCL *gpiod.Line
 		mu      sync.Mutex
 		newAmps float64
 		amps    float64
@@ -58,21 +56,11 @@ type (
 )
 
 var (
-	finalPA ina226Type
+	finalPA *ina226Type
 )
 
-func newIna226(address int8, shunt float64, maxAmps float64) ina226Type {
-	// not using gpiod yet
-	// lineSDA, err := gpiod.RequestLine("gpiochip0", kDefaultSDAPin, gpiod.AsInput)
-	// if err != nil {
-	// 	logger.Fatal.Panicf("Request lineSDA failed: %v", err)
-	// }
-	// lineSCL, err := gpiod.RequestLine("gpiochip0", kDefaultSCLPin, gpiod.AsInput)
-	// if err != nil {
-	// 	logger.Fatal.Panicf("Request lineSCL failed: %v", err)
-	// }
-	// return ina226Type{lineSDA: lineSDA, lineSCL: lineSCL, address: address, shunt: shunt, maxAmps: maxAmps}
-	return ina226Type{lineSDA: nil, lineSCL: nil, address: address, shunt: shunt, maxAmps: maxAmps}
+func newIna226(address int8, shunt float64, maxAmps float64) *ina226Type {
+	return &ina226Type{address: address, shunt: shunt, maxAmps: maxAmps}
 }
 
 func Configure() {
@@ -84,36 +72,31 @@ func Shutdown() {
 }
 
 func FinalPA() float64 {
-	return ampsForSensor(&finalPA)
+	return ampsForSensor(finalPA)
 }
 
-func byteSwapped(w uint16) uint16 {
-	// 16 bit word byte swap from TxServer
-	b1 := w >> 8
-	b2 := w & 0xFF
-	result := b2 << 8
-	result |= b1
-	return result
-}
+// func byteSwapped(w uint16) uint16 {
+// 	return bits.ReverseBytes16(w)
+// }
 
-const i2c_bus = 1
+// const i2c_bus = 1
 
-func i2c_open(bus uint8, address uint8) {
-	//
-}
+// func i2c_open(bus uint8, address uint8) {
+// 	//
+// }
 
-func i2c_write_word_data(b uint8, w uint16) {
-	//
-}
+// func i2c_write_word_data(b uint8, w uint16) {
+// 	//
+// }
 
-func i2c_read_word_data(b uint8, w uint16) uint16 {
-	var d uint16
-	return d
-}
+// func i2c_read_word_data(b uint8, w uint16) uint16 {
+// 	var d uint16
+// 	return d
+// }
 
 func ampsForSensor(sen *ina226Type) float64 {
 
-	sen.newAmps = 0.0
+	sen.newAmps = 1.2 // fake value for testing
 
 	sen.mu.Lock()
 	sen.amps = sen.newAmps

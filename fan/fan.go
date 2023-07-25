@@ -32,11 +32,10 @@ type (
 )
 
 var (
-	// TODO: use pointers ???
-	encIntake  fanType
-	encExtract fanType
-	paIntake   fanType
-	paExtract  fanType
+	encIntake  *fanType
+	encExtract *fanType
+	paIntake   *fanType
+	paExtract  *fanType
 )
 
 /*
@@ -49,14 +48,14 @@ const WithRisingEdge = LineEdgeRising
 const WithRealtimeEventClock = LineEventClockRealtime
 */
 
-func newFan(j8Pin int) fanType {
+func newFan(j8Pin int) *fanType {
 	// const deboucePeriod = 3 * time.Millisecond
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
 		logger.Fatal.Fatalf("line %v failed: %v", l, err)
 	}
-	return fanType{line: l}
+	return &fanType{line: l}
 }
 
 func Configure() {
@@ -79,19 +78,19 @@ func Shutdown() {
 }
 
 func EnclosureIntake() int64 {
-	return rpmForFan(&encIntake)
+	return rpmForFan(encIntake)
 }
 
 func EnclosureExtract() int64 {
-	return rpmForFan(&encExtract)
+	return rpmForFan(encExtract)
 }
 
 func FinalPAintake() int64 {
-	return rpmForFan(&paIntake)
+	return rpmForFan(paIntake)
 }
 
 func FinalPAextract() int64 {
-	return rpmForFan(&paExtract)
+	return rpmForFan(paExtract)
 }
 
 func rpmForFan(fan *fanType) int64 {
