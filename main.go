@@ -44,10 +44,13 @@ func readDevices() string {
 
 func shutdownDevices() {
 	power.Shutdown()
+	logger.Info.Printf("Shutdown power        - done")
 	fan.Shutdown()
+	logger.Info.Printf("Shutdown fan          - done")
 	current.Shutdown()
+	logger.Info.Printf("Shutdown current      - done")
 	temperature.Shutdown()
-
+	logger.Info.Printf("Shutdown temperatutre - done")
 }
 
 // func prev_handler() {
@@ -105,7 +108,15 @@ func handleClientRequest(con net.Conn) {
 }
 
 // http://www.inanzzz.com/index.php/post/j3n1/creating-a-concurrent-tcp-client-and-server-example-with-golang
+
+// 1st lets try the simple way
+
 func runServer() {
+	// capture exit signals to ensure pin is reverted to input on exit.
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	// defer signal.Stop(quit)
+
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
 		logger.Fatal.Fatalf("Failed to create listener: %v", err) // TODO: sort out Fatal
@@ -115,9 +126,14 @@ func runServer() {
 	logger.Info.Printf("Q-100 PA Server has started on %v", listener.Addr().String())
 
 	for {
+		// select {
+		// case <-quit:
+		// 	logger.Info.Printf("---------- got interupt ----------")
+		// 	return
+		// default:
+		// }
 		con, err := listener.Accept()
 		if err != nil {
-			// log.Println(err)
 			logger.Warn.Printf("Accept failed: %v\n", err)
 			continue
 		}
@@ -126,22 +142,10 @@ func runServer() {
 	}
 }
 
+// shutdown: https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
+
 func main() {
-	// quit := make(chan os.Signal, 1)
-	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	// defer signal.Stop(quit)
-
 	logger.Info.Printf("Q-100 PA Server has started")
-
-	// for {
-	// 	select {
-	// 	case <-time.After(2 * time.Second):
-	// 		fmt.Printf("running")
-	// 	case <-quit:
-	// 		fmt.Printf("quiting")
-	// 		return
-	// 	}
-	// }
 
 	configureDevices()
 	defer shutdownDevices()
