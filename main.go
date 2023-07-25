@@ -127,10 +127,28 @@ func runServer() {
 }
 
 func main() {
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	// defer signal.Stop(quit)
+
 	logger.Info.Printf("Q-100 PA Server has started")
+
+	// for {
+	// 	select {
+	// 	case <-time.After(2 * time.Second):
+	// 		fmt.Printf("running")
+	// 	case <-quit:
+	// 		fmt.Printf("quiting")
+	// 		return
+	// 	}
+	// }
+
 	configureDevices()
+	defer shutdownDevices()
+
 	runServer()
-	shutdownDevices()
+
+	// shutdownDevices()
 	logger.Info.Printf("Q-100 PA Server has stopped")
 	// TODO: shutdown or reboot Rasberry Pi
 }

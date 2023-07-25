@@ -13,6 +13,8 @@ import (
 	"github.com/warthog618/gpiod/device/rpi"
 )
 
+// using: https://github.com/warthog618/gpiod
+
 const (
 	// WAVESHARE RPi RELAY BOARD
 	RELAY_28v_GPIO = 26 // pin 37 GPIO_26 (CH1 P25)

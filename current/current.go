@@ -96,7 +96,7 @@ func FinalPA() float64 {
 
 func ampsForSensor(sen *ina226Type) float64 {
 
-	sen.newAmps = 1.2 // fake value for testing
+	sen.newAmps = 0.0 // fake value for testing
 
 	sen.mu.Lock()
 	sen.amps = sen.newAmps
