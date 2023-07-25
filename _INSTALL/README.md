@@ -1,8 +1,12 @@
-# Installing Pi OS
+## Hardware Connections
+
+TODO: list pin connections and refer to drawings
+
+## Installing Pi OS
 
 NOTE: CURRENTLY REQUIRES PI OS BULLSEYE 64-BIT (LITE VERSION)
 
-## Using Raspberry Pi Imager:
+### Using Raspberry Pi Imager:
 
 ```
 CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS Lite (64-bit)

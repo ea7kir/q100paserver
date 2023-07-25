@@ -2,7 +2,7 @@
 
 echo
 echo "-------------------------------"
-echo "-- Updateing the OS"
+echo "-- Updateing Pi OS"
 echo "-------------------------------"
 echo
 
@@ -22,14 +22,6 @@ rfkill block 1
 
 echo
 echo "-------------------------------"
-echo "-- Enable 1-Wire and I2C"
-echo "-------------------------------"
-echo
-
-echo "TODO"
-
-echo
-echo "-------------------------------"
 echo "-- Setting .profile"
 echo "-------------------------------"
 echo
@@ -46,12 +38,10 @@ sudo rpi-update
 
 echo
 echo "-------------------------------"
-echo "-- Rebooting in 5 seconds"
-echo "--"
-echo "-- Then run install_2"
+echo "-- Enable 1-Wire and I2C"
+echo
+echo "-- Enable with sudo raspi-config"
+echo
+echo "-- The reboot and run install_2"
 echo "-------------------------------"
 echo
-
-sleep 5
-
-sudo reboot

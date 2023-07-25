@@ -14,11 +14,21 @@ git config --global init.defaultBranch main
 
 echo
 echo "-------------------------------"
+echo "-- Installing i2c-tools python3-smbus"
+echo "-------------------------------"
+echo
+
+sudo apt install -y i2c-tools python3-smbus
+
+echo
+echo "-------------------------------"
 echo "-- Installing Go"
 echo
 echo "-- this will take some time..."
 echo "-------------------------------"
 echo
+
+echo "TODO: update .profile"
 
 sudo wget https://go.dev/dl/go1.20.6.linux-arm64.tar.gz
 sudo mv go1.20.6.linux-arm64.tar.gz /usr/local/

@@ -1,22 +1,22 @@
-# cd /home/pi/TxServer/_Resources
-# sudo cp txserver.service /etc/systemd/system/
-# sudo chmod 644 /etc/systemd/system/txserver.service
+# cd /home/pi/Q100/q100paserver/_NOTES
+# sudo cp q100paserver.service /etc/systemd/system/
+# sudo chmod 644 /etc/systemd/system/q100paserver.service
 # sudo systemctl daemon-reload
 #
-# sudo systemctl enable txserver
-# sudo systemctl start txserver
+# sudo systemctl enable q100paserver
+# sudo systemctl start q100paserver
 #
-# sudo systemctl status txserver
+# sudo systemctl status q100paserver
 #
-# sudo systemctl stop txserver
-# sudo systemctl disable txserver
+# sudo systemctl stop q100paserver
+# sudo systemctl disable q100paserver
 #
 [Unit]
-Description=TxServer to control and monitor DATV equipment
+Description=q100paserver to control and monitor DATV equipment
 After=mult-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/home/pi/TxServer/txserver
+ExecStart=/home/pi/Q100/q100paserver/q100paserver
 [Install]
 WantedBy=multi-user.target
