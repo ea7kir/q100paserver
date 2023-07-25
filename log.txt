@@ -1,0 +1,18 @@
+INFO: 22:20:32 main.go:161: Q-100 PA Server has started
+INFO: 22:20:45 main.go:169: ---------- got interupt ----------
+INFO: 22:20:45 power.go:79: Power DOWN is starting...
+INFO: 22:20:47 power.go:86: Power DOWN has completed
+INFO: 22:20:47 main.go:51: Shutdown power        - done
+INFO: 22:20:47 main.go:53: Shutdown fan          - done
+INFO: 22:20:47 main.go:55: Shutdown current      - done
+INFO: 22:20:47 main.go:57: Shutdown temperatutre - done
+INFO: 22:20:47 main.go:175: Q-100 PA Server has stopped
+INFO: 22:21:04 main.go:161: Q-100 PA Server has started
+INFO: 22:21:09 main.go:169: ---------- got interupt ----------
+INFO: 22:21:09 power.go:79: Power DOWN is starting...
+INFO: 22:21:11 power.go:86: Power DOWN has completed
+INFO: 22:21:11 main.go:51: Shutdown power        - done
+INFO: 22:21:11 main.go:53: Shutdown fan          - done
+INFO: 22:21:11 main.go:55: Shutdown current      - done
+INFO: 22:21:11 main.go:57: Shutdown temperatutre - done
+INFO: 22:21:11 main.go:175: Q-100 PA Server has stopped

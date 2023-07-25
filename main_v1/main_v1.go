@@ -3,26 +3,22 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package main
+package main_v1
 
 import (
 	"bufio"
 	"fmt"
 	"io"
 	"net"
-	"os"
-	"os/signal"
 	"q100paserver/current"
 	"q100paserver/fan"
 	"q100paserver/logger"
 	"q100paserver/power"
 	"q100paserver/temperature"
 	"strings"
-	"sync"
-	"syscall"
 )
 
-const PORT = "9999"
+const PORT = ":9999" // same as "0.0.0.0:9999"
 
 func configureDevices() {
 	power.Configure()
@@ -57,70 +53,29 @@ func shutdownDevices() {
 	logger.Info.Printf("Shutdown temperatutre - done")
 }
 
-// https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
-// eg: https://github.com/eliben/code-for-blog/blob/master/2020/tcp-server-shutdown/shutdown1/shutdown1.go
+// func prev_handler() {
+// 	connected := true
+// 	power.Up()
+// 	for {
+// 		if !connected {
+// 			break
+// 		}
+// 		str := readDevices()
+// 		logger.Info("\n\tSEND: %v\n", str)
+// 		time.Sleep(2 * time.Second)
+// 	}
+// 	power.Down()
+// }
 
-// Socket server that can be shut down -- stop serving, in a graceful manner.
-// This version expects all clients to close their connections before it
-// successfully returns from Stop().
-//
-// Eli Bendersky [https://eli.thegreenplace.net]
-// This code is in the public domain.
+// TODO: add signal to cancel
 
-type Server struct {
-	listener net.Listener
-	quit     chan interface{}
-	wg       sync.WaitGroup
-}
+// http://www.inanzzz.com/index.php/post/j3n1/creating-a-concurrent-tcp-client-and-server-example-with-golang
+func handleClientRequest(con net.Conn) {
+	defer con.Close()
 
-func NewServer(addr string) *Server {
-	s := &Server{
-		quit: make(chan interface{}),
-	}
-	l, err := net.Listen("tcp", addr)
-	if err != nil {
-		logger.Fatal.Fatalf("Failed to create listener: %s", err)
-	}
-	s.listener = l
-	s.wg.Add(1)
-	go s.serve()
-	return s
-}
-
-func (s *Server) Stop() {
-	close(s.quit)
-	s.listener.Close()
-	s.wg.Wait()
-}
-
-func (s *Server) serve() {
-	defer s.wg.Done()
-
-	for {
-		conn, err := s.listener.Accept()
-		if err != nil {
-			select {
-			case <-s.quit:
-				return
-			default:
-				logger.Warn.Println("accept error", err)
-			}
-		} else {
-			s.wg.Add(1)
-			go func() {
-				s.handleConection(conn)
-				s.wg.Done()
-			}()
-		}
-	}
-}
-
-func (s *Server) handleConection(conn net.Conn) {
-	defer conn.Close()
-
-	logger.Info.Printf("got connection from: %v\n", conn.RemoteAddr())
+	logger.Info.Printf("got connection from: %v\n", con.RemoteAddr())
 	power.Up()
-	clientReader := bufio.NewReader(conn)
+	clientReader := bufio.NewReader(con)
 
 	for {
 		// Waiting for the client request
@@ -146,33 +101,58 @@ func (s *Server) handleConection(conn net.Conn) {
 		// Responding to the client request (and check verion number match)
 		str := readDevices() + "\n"
 
-		if _, err = conn.Write([]byte(str)); err != nil {
+		if _, err = con.Write([]byte(str)); err != nil {
 			logger.Warn.Printf("failed to respond to client: %v\n", err)
 		}
 	}
 }
 
-func main() {
-	// capture exit signals to ensure pin is reverted to input on exit.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	defer signal.Stop(quit)
+// http://www.inanzzz.com/index.php/post/j3n1/creating-a-concurrent-tcp-client-and-server-example-with-golang
 
+// 1st lets try the simple way
+
+func runServer() {
+	// capture exit signals to ensure pin is reverted to input on exit.
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	// defer signal.Stop(quit)
+
+	listener, err := net.Listen("tcp", PORT)
+	if err != nil {
+		logger.Fatal.Fatalf("Failed to create listener: %v", err) // TODO: sort out Fatal
+	}
+	defer listener.Close()
+
+	logger.Info.Printf("Q-100 PA Server has started on %v", listener.Addr().String())
+
+	for {
+		// select {
+		// case <-quit:
+		// 	logger.Info.Printf("---------- got interupt ----------")
+		// 	return
+		// default:
+		// }
+		con, err := listener.Accept()
+		if err != nil {
+			logger.Warn.Printf("Accept failed: %v\n", err)
+			continue
+		}
+		// If you want, you can increment a counter here and inject to handleClientRequest below as client identifier
+		go handleClientRequest(con)
+	}
+}
+
+// shutdown: https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
+
+func main() {
 	logger.Info.Printf("Q-100 PA Server has started")
 
 	configureDevices()
+	defer shutdownDevices()
 
-	s := NewServer("0.0.0.0:" + PORT)
+	runServer()
 
-	<-quit // wait on interupt
-
-	logger.Info.Printf("---------- got interupt ----------")
-
-	s.Stop()
-
-	power.Down()
-	shutdownDevices()
+	// shutdownDevices()
 	logger.Info.Printf("Q-100 PA Server has stopped")
-
 	// TODO: shutdown or reboot Rasberry Pi
 }
