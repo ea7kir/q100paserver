@@ -153,12 +153,15 @@ func (s *Server) handleConection(conn net.Conn) {
 }
 
 func main() {
+	logger.Open("/home/pi/q100paserver.log")
+	defer logger.Close()
+
+	logger.Info.Printf("Q-100 PA Server has started")
+
 	// capture exit signals to ensure pin is reverted to input on exit.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
-
-	logger.Info.Printf("Q-100 PA Server has started")
 
 	configureDevices()
 

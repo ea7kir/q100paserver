@@ -15,12 +15,29 @@ var (
 	Warn  *log.Logger
 	Error *log.Logger
 	Fatal *log.Logger
+
+	logFile *os.File
 )
 
-func init() {
-	flags := log.Ltime | log.Lshortfile
-	Info = log.New(os.Stderr, "INFO: ", flags)
-	Warn = log.New(os.Stderr, "WARN: ", flags)
-	Error = log.New(os.Stderr, "ERROR: ", flags)
-	Fatal = log.New(os.Stderr, "FATAL: ", flags)
+func Open(file string) {
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	flags := log.Ldate | log.Ltime | log.Lshortfile
+	Info = log.New(f, "INFO: ", flags)
+	Warn = log.New(f, "WARN: ", flags)
+	Error = log.New(f, "ERROR: ", flags)
+	Fatal = log.New(f, "FATAL: ", flags)
+
+	logFile = f
 }
+
+func Close() {
+	logFile.Close()
+}
+
+// func Write() {
+
+// }
