@@ -1,5 +1,5 @@
 /*
- *  Q-100 PA Server
+ *  Q-100 Logger
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
@@ -19,19 +19,17 @@ var (
 	logFile *os.File
 )
 
-func Open(file string) {
-	f, err := os.OpenFile(file, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+func Open(output string) {
+	logFile, err := os.OpenFile(output, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	flags := log.Ldate | log.Ltime | log.Lshortfile
-	Info = log.New(f, "INFO: ", flags)
-	Warn = log.New(f, "WARN: ", flags)
-	Error = log.New(f, "ERROR: ", flags)
-	Fatal = log.New(f, "FATAL: ", flags)
-
-	logFile = f
+	Info = log.New(logFile, "INFO: ", flags)
+	Warn = log.New(logFile, "WARN: ", flags)
+	Error = log.New(logFile, "ERROR: ", flags)
+	Fatal = log.New(logFile, "FATAL: ", flags)
 }
 
 func Close() {
