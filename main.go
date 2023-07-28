@@ -153,7 +153,7 @@ func (s *Server) handleConection(conn net.Conn) {
 }
 
 func main() {
-	logger.Open("/home/pi/q100paserver.log")
+	logger.Open("/home/pi/Q100/paserver.log")
 	defer logger.Close()
 
 	logger.Info.Printf("Q-100 PA Server has started")
