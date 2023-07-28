@@ -11,6 +11,11 @@
 # sudo systemctl stop q100paserver
 # sudo systemctl disable q100paserver
 
+# rm /etc/systemd/system/*servicename
+# rm /usr/lib/systemd/system/*servicename 
+# sudo systemctl daemon-reload
+
+
 [Unit]
 Description=q100paserver to control and monitor DATV equipment
 After=mult-user.target
