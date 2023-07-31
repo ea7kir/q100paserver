@@ -8,6 +8,7 @@ package temperature
 import (
 	"os"
 	"q100paserver/logger"
+	"time"
 
 	"strconv"
 	"strings"
@@ -69,6 +70,7 @@ func FinalPA() float64 {
 }
 
 func tempForSensor(sen *ds18b20Type) float64 {
+	time.Sleep(20 * time.Millisecond)
 	// Typical file contents
 	// 73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
 	// 73 01 4b 46 7f ff 0d 10 41 t=23187

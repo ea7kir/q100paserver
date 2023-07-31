@@ -35,19 +35,22 @@ var (
 func Configure() {
 	relay28vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p37, gpiod.AsOutput(0))
 	if err != nil {
-		panic(err)
+		logger.Fatal.Fatalf("Failed to configure 28v rpi.J8p37 : %s", err)
 	}
 	relay28v = relay28vLine
+	relay28v.SetValue(RELAY_OFF)
 	relay12vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p38, gpiod.AsOutput(0))
 	if err != nil {
-		panic(err)
+		logger.Fatal.Fatalf("Failed to configure 12v rpi.J8p38 : %s", err)
 	}
 	relay12v = relay12vLine
+	relay12v.SetValue(RELAY_OFF)
 	relay5vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p40, gpiod.AsOutput(0))
 	if err != nil {
-		panic(err)
+		logger.Fatal.Fatalf("Failed to configure 5v rpi.J8p40 : %s", err)
 	}
 	relay5v = relay5vLine
+	relay5v.SetValue(RELAY_OFF)
 }
 
 func Shutdown() {
@@ -66,21 +69,21 @@ func Shutdown() {
 func Up() {
 	logger.Info.Printf("Power UP is starting...")
 	relay5v.SetValue(RELAY_ON)
-	time.Sleep(time.Second)
+	time.Sleep(500 * time.Millisecond)
 	relay28v.SetValue(RELAY_ON)
-	time.Sleep(time.Second)
+	time.Sleep(500 * time.Millisecond)
 	relay12v.SetValue(RELAY_ON)
 	isUp = true
-	time.Sleep(time.Second)
+	time.Sleep(500 * time.Millisecond)
 	logger.Info.Printf("Power UP has completed\n")
 }
 
 func Down() {
 	logger.Info.Printf("Power DOWN is starting...\n")
 	relay28v.SetValue(RELAY_OFF)
-	time.Sleep(time.Second)
+	time.Sleep(500 * time.Millisecond)
 	relay5v.SetValue(RELAY_OFF)
-	time.Sleep(time.Second)
+	time.Sleep(500 * time.Millisecond)
 	relay12v.SetValue(RELAY_OFF)
 	isUp = false
 	logger.Info.Printf("Power DOWN has completed\n")
