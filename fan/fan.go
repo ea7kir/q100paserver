@@ -98,7 +98,7 @@ func rpmForFan(fan *fanType) int64 {
 	// ie. 1 pulse every 7.5 milliseconds
 
 	// runs once per client request for each fan
-	func(fan *fanType) {
+	go func(fan *fanType) {
 		fan.newRpm = 0
 		const loopTime = 1003 * time.Millisecond
 		var i int
