@@ -3,7 +3,7 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package current // ina266devices
+package ina266driver
 
 // TODO: impleement an INA266 device
 

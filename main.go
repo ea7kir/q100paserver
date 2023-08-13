@@ -12,12 +12,13 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"q100paserver/current"
-	"q100paserver/fan"
+
+	"q100paserver/ds18b20driver"
+	"q100paserver/fandriver"
+	"q100paserver/ina266driver"
 	"q100paserver/logger"
-	"q100paserver/power"
-	"q100paserver/rpi"
-	"q100paserver/temperature"
+	"q100paserver/psudriver"
+	"q100paserver/rpidriver"
 	"strings"
 	"sync"
 	"syscall"
@@ -26,40 +27,40 @@ import (
 const PORT = "9999"
 
 func configureDevices() {
-	power.Configure()
-	current.Configure()
-	temperature.Configure()
-	fan.Configure()
-	rpi.Configure()
+	psudriver.Configure()
+	ina266driver.Configure()
+	ds18b20driver.Configure()
+	fandriver.Configure()
+	rpidriver.Configure()
 }
 
 // TODO: encode to json and include a version number (use json: tags).
 // Could also have the client requst a version number to match
 func readDevices() string {
 	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d, Pi %4.1f°",
-		temperature.PreAmp(),
-		temperature.FinalPA(),
-		current.FinalPA(),
-		fan.EnclosureIntake(),
-		fan.EnclosureExtract(),
-		fan.FinalPAintake(),
-		fan.FinalPAextract(),
-		rpi.Temperature(),
+		ds18b20driver.PreAmp(),
+		ds18b20driver.FinalPA(),
+		ina266driver.FinalPA(),
+		fandriver.EnclosureIntake(),
+		fandriver.EnclosureExtract(),
+		fandriver.FinalPAintake(),
+		fandriver.FinalPAextract(),
+		rpidriver.Temperature(),
 	)
 	return str
 }
 
 func shutdownDevices() {
-	power.Shutdown()
-	logger.Info.Printf("Shutdown power        - done")
-	fan.Shutdown()
-	logger.Info.Printf("Shutdown fan          - done")
-	current.Shutdown()
-	logger.Info.Printf("Shutdown current      - done")
-	temperature.Shutdown()
-	logger.Info.Printf("Shutdown temperatutre - done")
-	rpi.Shutdown()
-	logger.Info.Printf("Shutdown rpi          - done")
+	psudriver.Shutdown()
+	logger.Info.Printf("Shutdown psudriver     - done")
+	fandriver.Shutdown()
+	logger.Info.Printf("Shutdown fandriver     - done")
+	ina266driver.Shutdown()
+	logger.Info.Printf("Shutdown ina266driver  - done")
+	ds18b20driver.Shutdown()
+	logger.Info.Printf("Shutdown ds18b20driver - done")
+	rpidriver.Shutdown()
+	logger.Info.Printf("Shutdown rpidriver     - done")
 }
 
 // https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
@@ -124,7 +125,7 @@ func (s *Server) handleConection(conn net.Conn) {
 	defer conn.Close()
 
 	logger.Info.Printf("got connection from: %v\n", conn.RemoteAddr())
-	power.Up()
+	psudriver.Up()
 	clientReader := bufio.NewReader(conn)
 
 	for {
@@ -135,16 +136,16 @@ func (s *Server) handleConection(conn net.Conn) {
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
 				logger.Info.Printf("Connection closed with CLOSE")
-				power.Down()
+				psudriver.Down()
 				return
 			}
 		case io.EOF:
 			logger.Info.Printf("Connection closed with io.EOF")
-			power.Down()
+			psudriver.Down()
 			return
 		default:
 			logger.Warn.Printf("Connection closed abnormally: %v", err)
-			power.Down()
+			psudriver.Down()
 			return
 		}
 

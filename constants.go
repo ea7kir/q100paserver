@@ -37,7 +37,7 @@ const (
 	// Default connection is data line to GPIO 4 (pin 7).
 	// 4k7 pull-up on data line to 3V3
 	//
-	// Sset the slave ID for each DS18B20 TO-92 device
+	// Set the slave ID for each DS18B20 TO-92 device
 	// To find those available, type: cd /sys/bus/w1/devices/
 	// and look for directories named like: 28-3c01d607d440
 	PA_SENSOR_SLAVE_ID     = "28-3c01d607e348" // pin 7 GPIO_4
