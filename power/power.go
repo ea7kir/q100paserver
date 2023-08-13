@@ -69,21 +69,20 @@ func Shutdown() {
 func Up() {
 	logger.Info.Printf("Power UP is starting...")
 	relay5v.SetValue(RELAY_ON)
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	relay28v.SetValue(RELAY_ON)
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	relay12v.SetValue(RELAY_ON)
 	isUp = true
-	time.Sleep(500 * time.Millisecond)
 	logger.Info.Printf("Power UP has completed\n")
 }
 
 func Down() {
 	logger.Info.Printf("Power DOWN is starting...\n")
 	relay28v.SetValue(RELAY_OFF)
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	relay5v.SetValue(RELAY_OFF)
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	relay12v.SetValue(RELAY_OFF)
 	isUp = false
 	logger.Info.Printf("Power DOWN has completed\n")

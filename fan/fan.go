@@ -24,10 +24,10 @@ const (
 
 type (
 	fanType struct {
-		line   *gpiod.Line
-		mu     sync.Mutex
-		newRpm int64
-		rpm    int64
+		line *gpiod.Line
+		mu   sync.Mutex
+		quit chan bool
+		rpm  int64
 	}
 )
 
@@ -55,7 +55,14 @@ func newFan(j8Pin int) *fanType {
 	if err != nil {
 		logger.Fatal.Fatalf("line %v failed: %v", l, err)
 	}
-	return &fanType{line: l}
+	return &fanType{
+		line: l,
+		mu:   sync.Mutex{},
+		// ch:     make(chan int64),
+		quit: make(chan bool),
+		// newRpm: 0,
+		rpm: 0,
+	}
 }
 
 func Configure() {
@@ -63,9 +70,18 @@ func Configure() {
 	encExtract = newFan(kEncExtractPin)
 	paIntake = newFan(kPaIntakePin)
 	paExtract = newFan(kPaExtractPin)
+	go rpmForFan(encIntake)
+	go rpmForFan(encExtract)
+	go rpmForFan(paIntake)
+	go rpmForFan(paExtract)
 }
 
 func Shutdown() {
+	// kill the go routines
+	encIntake.quit <- true
+	encExtract.quit <- true
+	paIntake.quit <- true
+	paExtract.quit <- true
 	// revert lines to input on the way out
 	encIntake.line.Reconfigure(gpiod.AsInput)
 	encIntake.line.Close()
@@ -78,33 +94,49 @@ func Shutdown() {
 }
 
 func EnclosureIntake() int64 {
-	return rpmForFan(encIntake)
+	encIntake.mu.Lock()
+	defer encIntake.mu.Unlock()
+	return encIntake.rpm
 }
 
 func EnclosureExtract() int64 {
-	return rpmForFan(encExtract)
+	encExtract.mu.Lock()
+	defer encExtract.mu.Unlock()
+	return encExtract.rpm
 }
 
 func FinalPAintake() int64 {
-	return rpmForFan(paIntake)
+	paIntake.mu.Lock()
+	defer paIntake.mu.Unlock()
+	return paIntake.rpm
 }
 
 func FinalPAextract() int64 {
-	return rpmForFan(paExtract)
+	paExtract.mu.Lock()
+	defer paExtract.mu.Unlock()
+	return paExtract.rpm
 }
 
-func rpmForFan(fan *fanType) int64 {
+// Go Routine calculates rpm for each fan
+//
+//	4000 rpm equates to 8000 ppm or 133 pps
+//	ie. 1 pulse every 7.5 milliseconds
+func rpmForFan(fan *fanType) {
 	// 4000 rpm equates to 8000 ppm or 133 pps
 	// ie. 1 pulse every 7.5 milliseconds
-
-	// runs once per client request for each fan
-	go func(fan *fanType) {
-		fan.newRpm = 0
+	var newRpm int64
+	for {
+		newRpm = 0
 		const loopTime = 1003 * time.Millisecond
 		var i int
 		for start := time.Now(); ; {
 			// no need to checl end time quite so often, slow it down by 10 iterations
 			if i%10 == 0 {
+				select {
+				case <-fan.quit:
+					return
+				default:
+				}
 				if time.Since(start) > loopTime {
 					break
 				}
@@ -120,13 +152,11 @@ func rpmForFan(fan *fanType) int64 {
 				logger.Warn.Printf(" %v", err)
 			}
 			if v1 != v2 {
-				fan.newRpm += 30
+				newRpm += 30
 			}
 		}
 		fan.mu.Lock()
-		fan.rpm = fan.newRpm
+		fan.rpm = newRpm
 		fan.mu.Unlock()
-	}(fan)
-
-	return fan.rpm
+	}
 }

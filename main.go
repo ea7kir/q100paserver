@@ -16,6 +16,7 @@ import (
 	"q100paserver/fan"
 	"q100paserver/logger"
 	"q100paserver/power"
+	"q100paserver/rpi"
 	"q100paserver/temperature"
 	"strings"
 	"sync"
@@ -29,12 +30,13 @@ func configureDevices() {
 	current.Configure()
 	temperature.Configure()
 	fan.Configure()
+	rpi.Configure()
 }
 
 // TODO: encode to json and include a version number (use json: tags).
 // Could also have the client requst a version number to match
 func readDevices() string {
-	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d",
+	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d, Pi %4.1f°",
 		temperature.PreAmp(),
 		temperature.FinalPA(),
 		current.FinalPA(),
@@ -42,6 +44,7 @@ func readDevices() string {
 		fan.EnclosureExtract(),
 		fan.FinalPAintake(),
 		fan.FinalPAextract(),
+		rpi.Temperature(),
 	)
 	return str
 }
@@ -55,6 +58,8 @@ func shutdownDevices() {
 	logger.Info.Printf("Shutdown current      - done")
 	temperature.Shutdown()
 	logger.Info.Printf("Shutdown temperatutre - done")
+	rpi.Shutdown()
+	logger.Info.Printf("Shutdown rpi          - done")
 }
 
 // https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
@@ -158,22 +163,21 @@ func main() {
 
 	logger.Info.Printf("Q-100 PA Server has started")
 
-	// capture exit signals to ensure pin is reverted to input on exit.
+	// capture exit signals to ensure pins are reverted to input on exit.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
 
 	configureDevices()
 
-	s := NewServer("0.0.0.0:" + PORT)
+	server := NewServer("0.0.0.0:" + PORT)
 
 	<-quit // wait on interupt
 
 	logger.Info.Printf("---------- got interupt ----------")
 
-	s.Stop()
+	server.Stop()
 
-	power.Down()
 	shutdownDevices()
 	logger.Info.Printf("Q-100 PA Server has stopped")
 
