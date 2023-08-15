@@ -87,6 +87,10 @@ func PaTemperature() float64 {
 //	Typical file contents
 //	73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
 //	73 01 4b 46 7f ff 0d 10 41 t=23187
+//
+//	An alternative legacy way is read
+//	sys/class/thermal/thermal_zone0/temp
+//	51121
 func readTemperatureFor(sensor *ds18b20Type) {
 	var tempC float64
 	file := "/sys/bus/w1/devices/" + sensor.slaveId + "/w1_slave"
@@ -98,15 +102,15 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		}
 		tempC = 0.0
 		busBusy.Lock()
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 		data, err := os.ReadFile(file) // 75 bytes
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 		busBusy.Unlock()
 		if err != nil {
 			logger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
 		}
 		if len(data) != 75 {
-			logger.Warn.Printf("1-Wire %s len(data) != 75", sensor.slaveId)
+			logger.Warn.Printf("1-Wire %s len(data) != 75: >%v<", sensor.slaveId, data)
 		} else {
 			// convert bytes to string
 			str := string(data)
@@ -125,6 +129,6 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		sensor.mu.Lock()
 		sensor.tempC = tempC
 		sensor.mu.Unlock()
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
