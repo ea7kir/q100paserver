@@ -16,11 +16,11 @@ import (
 
 type (
 	rpiType struct {
-		cmd  string
-		arg  string
-		mu   sync.Mutex
-		quit chan bool
-		temp float64
+		cmd   string
+		arg   string
+		mu    sync.Mutex
+		quit  chan bool
+		tempC float64
 	}
 )
 
@@ -30,11 +30,11 @@ var (
 
 func newRpi() *rpiType {
 	return &rpiType{
-		cmd:  "vcgencmd",
-		arg:  "measure_temp",
-		mu:   sync.Mutex{},
-		quit: make(chan bool),
-		temp: 0.0,
+		cmd:   "vcgencmd",
+		arg:   "measure_temp",
+		mu:    sync.Mutex{},
+		quit:  make(chan bool),
+		tempC: 0.0,
 	}
 }
 
@@ -56,31 +56,35 @@ pi@txserver:~ $
 func Temperature() float64 {
 	rpiCpu.mu.Lock()
 	defer rpiCpu.mu.Unlock()
-	return rpiCpu.temp
+	return rpiCpu.tempC
 }
 
 // Go routine to read raspberry pi core data
 func readRpi(pi *rpiType) {
+	var tempC float64
+	var err error
+	var bytes []byte
 	for {
 		select {
 		case <-pi.quit:
 			return
 		default:
 		}
-		bytes, err := exec.Command(pi.cmd, pi.arg).Output()
+		tempC = 0.0
+		bytes, err = exec.Command(pi.cmd, pi.arg).Output()
 		if err != nil {
 			logger.Error.Printf("Failed to read rpi temperature: %v", err)
 		}
 		str0 := string(bytes[:])
 		str1 := strings.Split(str0, "=")
 		str2 := strings.Split(str1[1], "'C")
-		str3 := str2[0]
-		temp, err := strconv.ParseFloat(str3, 64)
+		str3 := strings.TrimSpace(str2[0])
+		tempC, err = strconv.ParseFloat(str3, 64)
 		if err != nil {
 			logger.Error.Printf("Failed to convert rpi temperature: %v", err)
 		} else {
 			rpiCpu.mu.Lock()
-			rpiCpu.temp = temp
+			rpiCpu.tempC = tempC
 			rpiCpu.mu.Unlock()
 			time.Sleep(2 * time.Second)
 		}

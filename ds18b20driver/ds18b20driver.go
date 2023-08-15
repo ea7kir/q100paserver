@@ -8,9 +8,9 @@ package ds18b20driver
 import (
 	"os"
 	"q100paserver/logger"
+	"strconv"
 	"time"
 
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -36,8 +36,8 @@ const (
 type (
 	ds18b20Type struct {
 		mu      sync.Mutex
-		newtemp float64
-		temp    float64
+		quit    chan bool
+		tempC   float64
 		slaveId string
 	}
 )
@@ -45,73 +45,86 @@ type (
 var (
 	preAmp  *ds18b20Type
 	finalPA *ds18b20Type
+	busBusy = sync.Mutex{} // to prevent concurrent access to the 1-wire bus
+	//                        but could this deadlock on shutdown?
 )
 
 func newDs18b20(slaveId string) *ds18b20Type {
-
-	return &ds18b20Type{slaveId: slaveId}
+	return &ds18b20Type{
+		mu:      sync.Mutex{},
+		quit:    make(chan bool),
+		tempC:   0.0,
+		slaveId: slaveId,
+	}
 }
 
 func Configure() {
 	preAmp = newDs18b20(kPreampSensorAddress)
 	finalPA = newDs18b20(kPaSensorAddress)
+	go readTemperatureFor(preAmp)
+	go readTemperatureFor(finalPA)
 }
 
 func Shutdown() {
-	// revert lines to input on the way out
+	preAmp.quit <- true
+	finalPA.quit <- true
 }
 
-func PreAmp() float64 {
-	return tempForSensor(preAmp)
+func PreAmpTemperature() float64 {
+	preAmp.mu.Lock()
+	defer preAmp.mu.Unlock()
+	return preAmp.tempC
 }
 
-func FinalPA() float64 {
-	return tempForSensor(finalPA)
+func PaTemperature() float64 {
+	finalPA.mu.Lock()
+	defer finalPA.mu.Unlock()
+	return finalPA.tempC
 }
 
-func tempForSensor(sen *ds18b20Type) float64 {
-	time.Sleep(20 * time.Millisecond)
-	// Typical file contents
-	// 73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
-	// 73 01 4b 46 7f ff 0d 10 41 t=23187
-	file := "/sys/bus/w1/devices/" + sen.slaveId + "/w1_slave"
-	sen.newtemp = 0.0
-	data, err := os.ReadFile(file) // 75 bytes
-	if err != nil {
-		logger.Error.Printf("1-Wire %s failed to read\n%v", sen.slaveId, err)
-		sen.mu.Lock()
-		sen.temp = sen.newtemp
-		sen.mu.Unlock()
-		return sen.temp
+// Go routine to read temperature
+//
+//	Typical file contents
+//	73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
+//	73 01 4b 46 7f ff 0d 10 41 t=23187
+func readTemperatureFor(sensor *ds18b20Type) {
+	var tempC float64
+	file := "/sys/bus/w1/devices/" + sensor.slaveId + "/w1_slave"
+	for {
+		select {
+		case <-sensor.quit:
+			return
+		default:
+		}
+		tempC = 0.0
+		busBusy.Lock()
+		time.Sleep(10 * time.Millisecond)
+		data, err := os.ReadFile(file) // 75 bytes
+		time.Sleep(10 * time.Millisecond)
+		busBusy.Unlock()
+		if err != nil {
+			logger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
+		}
+		if len(data) != 75 {
+			logger.Warn.Printf("1-Wire %s len(data) != 75", sensor.slaveId)
+		} else {
+			// convert bytes to string
+			str := string(data)
+			if !strings.Contains(str, "YES") {
+				logger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
+			} else {
+				subStr := strings.Split(str, "t=")
+				subStr1 := strings.TrimSpace(subStr[1])
+				tempC, err = strconv.ParseFloat(subStr1, 64)
+				if err != nil {
+					logger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+				}
+			}
+		}
+		tempC /= 1000.0
+		sensor.mu.Lock()
+		sensor.tempC = tempC
+		sensor.mu.Unlock()
+		time.Sleep(1 * time.Second)
 	}
-	// convert bytes to string
-	str := string(data)
-	if !strings.Contains(str, "YES") {
-		logger.Warn.Printf("1-Wire %s did not contain YES", sen.slaveId)
-		sen.mu.Lock()
-		sen.temp = sen.newtemp
-		sen.mu.Unlock()
-		return sen.temp
-	}
-	i := strings.LastIndex(str, "t=")
-	if i == -1 {
-		logger.Warn.Printf("1-Wire %s did not contain t=", sen.slaveId)
-		sen.mu.Lock()
-		sen.temp = sen.newtemp
-		sen.mu.Unlock()
-		return sen.temp
-	}
-	tempC, err := strconv.ParseFloat(str[i+2:len(str)-1], 64)
-	if err != nil {
-		logger.Warn.Printf("1-Wire %s invalid temperature\n%v", sen.slaveId, err)
-		sen.mu.Lock()
-		sen.temp = sen.newtemp
-		sen.mu.Unlock()
-		return sen.temp
-	}
-	sen.newtemp = tempC / 1000.0
-	sen.mu.Lock()
-	sen.temp = sen.newtemp
-	sen.mu.Unlock()
-	return sen.temp
 }

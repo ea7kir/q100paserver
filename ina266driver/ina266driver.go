@@ -9,6 +9,7 @@ package ina266driver
 
 import (
 	"sync"
+	"time"
 	// "github.com/warthog618/gpiod/device/rpi"
 )
 
@@ -47,7 +48,8 @@ const (
 type (
 	ina226Type struct {
 		mu      sync.Mutex
-		newAmps float64
+		quit    chan bool
+		volts   float64
 		amps    float64
 		address int8
 		shunt   float64
@@ -60,19 +62,36 @@ var (
 )
 
 func newIna226(address int8, shunt float64, maxAmps float64) *ina226Type {
-	return &ina226Type{address: address, shunt: shunt, maxAmps: maxAmps}
+	return &ina226Type{
+		mu:      sync.Mutex{},
+		quit:    make(chan bool),
+		volts:   0.0,
+		amps:    0.0,
+		address: address,
+		shunt:   shunt,
+		maxAmps: maxAmps,
+	}
 }
 
 func Configure() {
 	finalPA = newIna226(kFinalPaAddrees, kFinalPaShunt, kFinalPaMaxAmps)
+	go readVoltsAmpsFor(finalPA)
 }
 
 func Shutdown() {
-	// revert lines to input on the way out
+	finalPA.quit <- true
 }
 
-func FinalPA() float64 {
-	return ampsForSensor(finalPA)
+func PaVoltage() float64 {
+	finalPA.mu.Lock()
+	defer finalPA.mu.Unlock()
+	return finalPA.volts
+}
+
+func PaCurrent() float64 {
+	finalPA.mu.Lock()
+	defer finalPA.mu.Unlock()
+	return finalPA.amps
 }
 
 // func byteSwapped(w uint16) uint16 {
@@ -94,12 +113,25 @@ func FinalPA() float64 {
 // 	return d
 // }
 
-func ampsForSensor(sen *ina226Type) float64 {
+// Go routine to read voltage and current
+func readVoltsAmpsFor(sensor *ina226Type) {
+	var volts float64
+	var amps float64
+	for {
+		select {
+		case <-sensor.quit:
+			return
+		default:
+		}
+		volts = 0.0
+		amps = 0.0
 
-	sen.newAmps = 0.0 // fake value for testing
+		// TODO: implementation goes here
 
-	sen.mu.Lock()
-	sen.amps = sen.newAmps
-	sen.mu.Unlock()
-	return sen.amps
+		sensor.mu.Lock()
+		sensor.volts = volts
+		sensor.amps = amps
+		sensor.mu.Unlock()
+		time.Sleep(1 * time.Second)
+	}
 }

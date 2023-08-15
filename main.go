@@ -38,9 +38,9 @@ func configureDevices() {
 // Could also have the client requst a version number to match
 func readDevices() string {
 	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d, Pi %4.1f°",
-		ds18b20driver.PreAmp(),
-		ds18b20driver.FinalPA(),
-		ina266driver.FinalPA(),
+		ds18b20driver.PreAmpTemperature(),
+		ds18b20driver.PaTemperature(),
+		ina266driver.PaCurrent(),
 		fandriver.EnclosureIntake(),
 		fandriver.EnclosureExtract(),
 		fandriver.FinalPAintake(),

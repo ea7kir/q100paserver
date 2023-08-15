@@ -158,5 +158,6 @@ func rpmForFan(fan *fanType) {
 		fan.mu.Lock()
 		fan.rpm = newRpm
 		fan.mu.Unlock()
+		time.Sleep(1 * time.Second)
 	}
 }
