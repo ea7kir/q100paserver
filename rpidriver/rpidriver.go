@@ -16,8 +16,6 @@ import (
 
 type (
 	rpiType struct {
-		cmd   string
-		arg   string
 		mu    sync.Mutex
 		quit  chan bool
 		tempC float64
@@ -30,8 +28,6 @@ var (
 
 func newRpi() *rpiType {
 	return &rpiType{
-		cmd:   "vcgencmd",
-		arg:   "measure_temp",
 		mu:    sync.Mutex{},
 		quit:  make(chan bool),
 		tempC: 0.0,
