@@ -87,10 +87,6 @@ func PaTemperature() float64 {
 //	Typical file contents
 //	73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
 //	73 01 4b 46 7f ff 0d 10 41 t=23187
-//
-//	An alternative legacy way is read
-//	sys/class/thermal/thermal_zone0/temp
-//	51121
 func readTemperatureFor(sensor *ds18b20Type) {
 	var tempC float64
 	file := "/sys/bus/w1/devices/" + sensor.slaveId + "/w1_slave"

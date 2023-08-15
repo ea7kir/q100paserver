@@ -60,6 +60,10 @@ func Temperature() float64 {
 }
 
 // Go routine to read raspberry pi core data
+//
+//	An alternative legacy way is read
+//	sys/class/thermal/thermal_zone0/temp
+//	51121
 func readRpi(pi *rpiType) {
 	var tempC float64
 	var err error
@@ -71,7 +75,7 @@ func readRpi(pi *rpiType) {
 		default:
 		}
 		tempC = 0.0
-		bytes, err = exec.Command(pi.cmd, pi.arg).Output()
+		bytes, err = exec.Command("vcgencmd", "measure_temp").Output()
 		if err != nil {
 			logger.Error.Printf("Failed to read rpi temperature: %v", err)
 		}
@@ -86,7 +90,7 @@ func readRpi(pi *rpiType) {
 			rpiCpu.mu.Lock()
 			rpiCpu.tempC = tempC
 			rpiCpu.mu.Unlock()
-			time.Sleep(2 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}
 }
