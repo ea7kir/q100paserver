@@ -7,7 +7,7 @@ package ds18b20driver
 
 import (
 	"os"
-	"q100paserver/logger"
+	"q100paserver/mylogger"
 	"strconv"
 	"time"
 
@@ -103,21 +103,21 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		time.Sleep(20 * time.Millisecond)
 		busBusy.Unlock()
 		if err != nil {
-			logger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
+			mylogger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
 		}
 		if len(data) != 75 {
-			logger.Warn.Printf("1-Wire %s len(data) != 75: >%v<", sensor.slaveId, data)
+			mylogger.Warn.Printf("1-Wire %s len(data) != 75: >%v<", sensor.slaveId, data)
 		} else {
 			// convert bytes to string
 			str := string(data)
 			if !strings.Contains(str, "YES") {
-				logger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
+				mylogger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
 			} else {
 				subStr := strings.Split(str, "t=")
 				subStr1 := strings.TrimSpace(subStr[1])
 				tempC, err = strconv.ParseFloat(subStr1, 64)
 				if err != nil {
-					logger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+					mylogger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
 				}
 			}
 		}

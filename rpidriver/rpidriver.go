@@ -7,7 +7,7 @@ package rpidriver
 
 import (
 	"os/exec"
-	"q100paserver/logger"
+	"q100paserver/mylogger"
 	"strconv"
 	"strings"
 	"sync"
@@ -73,7 +73,7 @@ func readRpi(pi *rpiType) {
 		tempC = 0.0
 		bytes, err = exec.Command("vcgencmd", "measure_temp").Output()
 		if err != nil {
-			logger.Error.Printf("Failed to read rpi temperature: %v", err)
+			mylogger.Error.Printf("Failed to read rpi temperature: %v", err)
 		}
 		str0 := string(bytes[:])
 		str1 := strings.Split(str0, "=")
@@ -81,7 +81,7 @@ func readRpi(pi *rpiType) {
 		str3 := strings.TrimSpace(str2[0])
 		tempC, err = strconv.ParseFloat(str3, 64)
 		if err != nil {
-			logger.Error.Printf("Failed to convert rpi temperature: %v", err)
+			mylogger.Error.Printf("Failed to convert rpi temperature: %v", err)
 		} else {
 			rpiCpu.mu.Lock()
 			rpiCpu.tempC = tempC

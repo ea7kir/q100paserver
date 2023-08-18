@@ -16,7 +16,7 @@ import (
 	"q100paserver/ds18b20driver"
 	"q100paserver/fandriver"
 	"q100paserver/ina266driver"
-	"q100paserver/logger"
+	"q100paserver/mylogger"
 	"q100paserver/psudriver"
 	"q100paserver/rpidriver"
 	"strings"
@@ -52,15 +52,15 @@ func readDevices() string {
 
 func shutdownDevices() {
 	psudriver.Shutdown()
-	logger.Info.Printf("Shutdown psudriver     - done")
+	mylogger.Info.Printf("Shutdown psudriver     - done")
 	fandriver.Shutdown()
-	logger.Info.Printf("Shutdown fandriver     - done")
+	mylogger.Info.Printf("Shutdown fandriver     - done")
 	ina266driver.Shutdown()
-	logger.Info.Printf("Shutdown ina266driver  - done")
+	mylogger.Info.Printf("Shutdown ina266driver  - done")
 	ds18b20driver.Shutdown()
-	logger.Info.Printf("Shutdown ds18b20driver - done")
+	mylogger.Info.Printf("Shutdown ds18b20driver - done")
 	rpidriver.Shutdown()
-	logger.Info.Printf("Shutdown rpidriver     - done")
+	mylogger.Info.Printf("Shutdown rpidriver     - done")
 }
 
 // https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
@@ -85,7 +85,7 @@ func NewServer(addr string) *Server {
 	}
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Fatal.Fatalf("Failed to create listener: %s", err)
+		mylogger.Fatal.Fatalf("Failed to create listener: %s", err)
 	}
 	s.listener = l
 	s.wg.Add(1)
@@ -109,7 +109,7 @@ func (s *Server) serve() {
 			case <-s.quit:
 				return
 			default:
-				logger.Warn.Println("accept error", err)
+				mylogger.Warn.Println("accept error", err)
 			}
 		} else {
 			s.wg.Add(1)
@@ -124,7 +124,7 @@ func (s *Server) serve() {
 func (s *Server) handleConection(conn net.Conn) {
 	defer conn.Close()
 
-	logger.Info.Printf("got connection from: %v\n", conn.RemoteAddr())
+	mylogger.Info.Printf("got connection from: %v\n", conn.RemoteAddr())
 	psudriver.Up()
 	clientReader := bufio.NewReader(conn)
 
@@ -135,16 +135,16 @@ func (s *Server) handleConection(conn net.Conn) {
 		case nil:
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
-				logger.Info.Printf("Connection closed with CLOSE")
+				mylogger.Info.Printf("Connection closed with CLOSE")
 				psudriver.Down()
 				return
 			}
 		case io.EOF:
-			logger.Info.Printf("Connection closed with io.EOF")
+			mylogger.Info.Printf("Connection closed with io.EOF")
 			psudriver.Down()
 			return
 		default:
-			logger.Warn.Printf("Connection closed abnormally: %v", err)
+			mylogger.Warn.Printf("Connection closed abnormally: %v", err)
 			psudriver.Down()
 			return
 		}
@@ -153,16 +153,16 @@ func (s *Server) handleConection(conn net.Conn) {
 		str := readDevices() + "\n"
 
 		if _, err = conn.Write([]byte(str)); err != nil {
-			logger.Warn.Printf("failed to respond to client: %v\n", err)
+			mylogger.Warn.Printf("failed to respond to client: %v\n", err)
 		}
 	}
 }
 
 func main() {
-	logger.Open("/home/pi/Q100/paserver.log")
-	defer logger.Close()
+	mylogger.Open("/home/pi/Q100/paserver.log")
+	defer mylogger.Close()
 
-	logger.Info.Printf("Q-100 PA Server has started")
+	mylogger.Info.Printf("Q-100 PA Server has started")
 
 	// capture exit signals to ensure pins are reverted to input on exit.
 	quit := make(chan os.Signal, 1)
@@ -175,12 +175,12 @@ func main() {
 
 	<-quit // wait on interupt
 
-	logger.Info.Printf("---------- got interupt ----------")
+	mylogger.Info.Printf("---------- got interupt ----------")
 
 	server.Stop()
 
 	shutdownDevices()
-	logger.Info.Printf("Q-100 PA Server has stopped")
+	mylogger.Info.Printf("Q-100 PA Server has stopped")
 
 	// TODO: shutdown or reboot Rasberry Pi
 }

@@ -6,7 +6,7 @@
 package fandriver
 
 import (
-	"q100paserver/logger"
+	"q100paserver/mylogger"
 	"sync"
 	"time"
 
@@ -53,7 +53,7 @@ func newFan(j8Pin int) *fanType {
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
-		logger.Fatal.Fatalf("line %v failed: %v", l, err)
+		mylogger.Fatal.Fatalf("line %v failed: %v", l, err)
 	}
 	return &fanType{
 		line: l,
@@ -144,12 +144,12 @@ func rpmForFan(fan *fanType) {
 			i++
 			v1, err := fan.line.Value()
 			if err != nil {
-				logger.Warn.Printf(" %v", err)
+				mylogger.Warn.Printf(" %v", err)
 			}
 			time.Sleep(3 * time.Millisecond)
 			v2, err := fan.line.Value()
 			if err != nil {
-				logger.Warn.Printf(" %v", err)
+				mylogger.Warn.Printf(" %v", err)
 			}
 			if v1 != v2 {
 				newRpm += 30
