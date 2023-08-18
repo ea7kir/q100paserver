@@ -23,17 +23,15 @@ sudo apt install -y i2c-tools python3-smbus
 echo
 echo "-------------------------------"
 echo "-- Installing Go"
-echo
-echo "-- this will take some time..."
 echo "-------------------------------"
 echo
 
-echo "TODO: update .profile"
-
-sudo wget https://go.dev/dl/go1.20.6.linux-arm64.tar.gz
-sudo mv go1.20.6.linux-arm64.tar.gz /usr/local/
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.20.6.linux-arm64.tar.gz
+GOVERSION=go1.21.0.linux-arm64.tar.gz
+cd /usr/local
+sudo wget https://go.dev/dl/$GOVERSION
+# sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf $GOVERSION
+cd
 
 echo
 echo "-------------------------------"
