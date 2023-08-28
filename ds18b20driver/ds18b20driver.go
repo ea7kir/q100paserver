@@ -105,10 +105,6 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		if err != nil {
 			mylogger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
 		}
-		// if len(data) < 74 {
-		// 	mylogger.Warn.Printf("1-Wire %s len(data) < 74: >%v<", sensor.slaveId, data)
-		// } else {
-		// convert bytes to string
 		str := string(data)
 		if !strings.Contains(str, "YES") {
 			mylogger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
@@ -119,7 +115,6 @@ func readTemperatureFor(sensor *ds18b20Type) {
 			if err != nil {
 				mylogger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
 			}
-			// }
 		}
 		tempC /= 1000.0
 		sensor.mu.Lock()
