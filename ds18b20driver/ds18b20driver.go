@@ -98,28 +98,28 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		}
 		tempC = 0.0
 		busBusy.Lock()
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(475 * time.Millisecond)
 		data, err := os.ReadFile(file) // 75 bytes
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(475 * time.Millisecond)
 		busBusy.Unlock()
 		if err != nil {
 			mylogger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
 		}
-		if len(data) != 75 {
-			mylogger.Warn.Printf("1-Wire %s len(data) != 75: >%v<", sensor.slaveId, data)
+		// if len(data) < 74 {
+		// 	mylogger.Warn.Printf("1-Wire %s len(data) < 74: >%v<", sensor.slaveId, data)
+		// } else {
+		// convert bytes to string
+		str := string(data)
+		if !strings.Contains(str, "YES") {
+			mylogger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
 		} else {
-			// convert bytes to string
-			str := string(data)
-			if !strings.Contains(str, "YES") {
-				mylogger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
-			} else {
-				subStr := strings.Split(str, "t=")
-				subStr1 := strings.TrimSpace(subStr[1])
-				tempC, err = strconv.ParseFloat(subStr1, 64)
-				if err != nil {
-					mylogger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
-				}
+			subStr := strings.Split(str, "t=")
+			subStr1 := strings.TrimSpace(subStr[1])
+			tempC, err = strconv.ParseFloat(subStr1, 64)
+			if err != nil {
+				mylogger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
 			}
+			// }
 		}
 		tempC /= 1000.0
 		sensor.mu.Lock()

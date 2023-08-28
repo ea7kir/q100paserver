@@ -15,7 +15,7 @@ import (
 
 	"q100paserver/ds18b20driver"
 	"q100paserver/fandriver"
-	"q100paserver/ina266driver"
+	"q100paserver/ina226driver"
 	"q100paserver/mylogger"
 	"q100paserver/psudriver"
 	"q100paserver/rpidriver"
@@ -28,7 +28,7 @@ const PORT = "9999"
 
 func configureDevices() {
 	psudriver.Configure()
-	ina266driver.Configure()
+	ina226driver.Configure()
 	ds18b20driver.Configure()
 	fandriver.Configure()
 	rpidriver.Configure()
@@ -40,7 +40,7 @@ func readDevices() string {
 	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d, Pi %4.1f°",
 		ds18b20driver.PreAmpTemperature(),
 		ds18b20driver.PaTemperature(),
-		ina266driver.PaCurrent(),
+		ina226driver.PaCurrent(),
 		fandriver.EnclosureIntake(),
 		fandriver.EnclosureExtract(),
 		fandriver.FinalPAintake(),
@@ -55,8 +55,8 @@ func shutdownDevices() {
 	mylogger.Info.Printf("Shutdown psudriver     - done")
 	fandriver.Shutdown()
 	mylogger.Info.Printf("Shutdown fandriver     - done")
-	ina266driver.Shutdown()
-	mylogger.Info.Printf("Shutdown ina266driver  - done")
+	ina226driver.Shutdown()
+	mylogger.Info.Printf("Shutdown ina226driver  - done")
 	ds18b20driver.Shutdown()
 	mylogger.Info.Printf("Shutdown ds18b20driver - done")
 	rpidriver.Shutdown()
@@ -169,9 +169,9 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
 
-	configureDevices()
-
 	server := NewServer("0.0.0.0:" + PORT)
+
+	configureDevices()
 
 	<-quit // wait on interupt
 
