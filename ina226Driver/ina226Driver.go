@@ -88,7 +88,7 @@ type Ina226 struct {
 	// vBusMax, vShuntMax float64 // unused
 }
 
-func New(bus int, addr byte) (*Ina226, error) {
+func NewDriver(bus int, addr byte) (*Ina226, error) {
 	dev, err := i2cReadWriter.NewDevice(bus, addr)
 	if err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func (ina226 *Ina226) readRegister16(reg byte) (uint16, error) {
 	return value, nil
 }
 
-func (ina226 *Ina226) readConfigurationRegister() (uint16, error) { // unused
-	confReg, err := ina226.readRegister16(CONFIG_REG)
-	if err != nil {
-		return 0, err
-	}
-	return confReg, nil
-}
+// func (ina226 *Ina226) readConfigurationRegister() (uint16, error) { // unused
+// 	confReg, err := ina226.readRegister16(CONFIG_REG)
+// 	if err != nil {
+// 		return 0, err
+// 	}
+// 	return confReg, nil
+// }
 
 func (ina226 *Ina226) readCalibrationRegister() (uint16, error) {
 	calReg, err := ina226.readRegister16(CALIBRATION_REG)

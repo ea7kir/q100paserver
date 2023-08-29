@@ -6,53 +6,81 @@
 package ina226monitor
 
 import (
+	"fmt"
+	"q100paserver/ina226Driver"
+	"q100paserver/mylogger"
 	"sync"
 	"time"
 )
 
 const (
-	// INA226 current/voltage sensors
-	// To discover I2C devices
-	// $ sudo i2cdetect -y 1
-	// Address could be 0x40, 0x41 or 0x42
-	// Connect to pin3 GPIO2 SDA, pin 5 GPIO3 SCL
-	// 4k7 pull-up resistors on data lines to 3.3v
-
-	kFinalPaAddrees = 0x40
-	kFinalPaShunt   = 0.002 // modified to 0.0021 from 0.002 to get correct current reading
-	kFinalPaMaxAmps = 10
+	kI2cBus            = 1
+	kFinalPaI2cAddress = 0x40
+	kFinalPaShunt      = 0.002 // modifiedto 0.0021 from 0,002 to get correct current reading
+	kFinalPaMaxAmps    = 10
 )
 
+// TODO: install i2c-tools
+// sudo apt install -y i2c-tools
+// TODO: enable I2C in config
+
+// INA226 current/voltage sensors
+// To discover I2C devices
+// $ sudo i2cdetect -y 1
+// TODO: address could be 0x40, 0x41 or 0x42
+// I2C pin3 GPIO2 SDA, pin 5 GPIO3 SCL
+// 4k7 pull-up resistors on data lines to 3.3v
+
 type (
-	ina226Type struct {
-		mu      sync.Mutex
-		quit    chan bool
-		volts   float64
-		amps    float64
-		address int8
-		shunt   float64
-		maxAmps float64
+	ina226sensorType struct {
+		mu    sync.Mutex
+		quit  chan bool
+		volts float64
+		amps  float64
+		// address int8
+		// shunt   float64
+		// maxAmps float64
+		sensor *ina226Driver.Ina226
 	}
 )
 
 var (
-	finalPA *ina226Type
+	finalPA *ina226sensorType
 )
 
-func newIna226(address int8, shunt float64, maxAmps float64) *ina226Type {
-	return &ina226Type{
-		mu:      sync.Mutex{},
-		quit:    make(chan bool),
-		volts:   0.0,
-		amps:    0.0,
-		address: address,
-		shunt:   shunt,
-		maxAmps: maxAmps,
+func newIna226sensor(address int8, shunt float64, maxAmps float64) *ina226sensorType {
+	return &ina226sensorType{
+		mu:    sync.Mutex{},
+		quit:  make(chan bool),
+		volts: 0.0,
+		amps:  0.0,
+		// address: address,
+		// shunt:   shunt,
+		// maxAmps: maxAmps,
+		sensor: nil,
 	}
 }
 
 func Configure() {
-	finalPA = newIna226(kFinalPaAddrees, kFinalPaShunt, kFinalPaMaxAmps)
+	// for Final PA
+	finalPA = newIna226sensor(kFinalPaI2cAddress, kFinalPaShunt, kFinalPaMaxAmps)
+	sensor, err := ina226Driver.NewDriver(kI2cBus, kFinalPaI2cAddress)
+	if err != nil {
+		mylogger.Fatal.Fatalln(err)
+	}
+	err = sensor.Configure(
+		ina226Driver.INA226_SHUNT_CONV_TIME_1100US,
+		ina226Driver.INA226_BUS_CONV_TIME_1100US,
+		ina226Driver.INA226_AVERAGES_1,
+		ina226Driver.INA226_MODE_SHUNT_BUS_CONT,
+	)
+	if err != nil {
+		mylogger.Fatal.Fatalln(err)
+	}
+	sensor.Calibrate(kFinalPaShunt, kFinalPaMaxAmps)
+	finalPA.sensor = sensor
+	// for any other goes here
+
 	go readVoltsAmpsFor(finalPA)
 }
 
@@ -73,24 +101,28 @@ func PaCurrent() float64 {
 }
 
 // Go routine to read voltage and current
-func readVoltsAmpsFor(sensor *ina226Type) {
-	var volts float64
-	var amps float64
+func readVoltsAmpsFor(sensor *ina226sensorType) {
 	for {
 		select {
 		case <-sensor.quit:
 			return
 		default:
 		}
-		volts = 0.0
-		amps = 0.0
 
-		// TODO: implementation goes here
+		vBus, err := sensor.sensor.ReadBusVoltage()
+		if err != nil {
+			mylogger.Error.Printf("%s", err)
+		}
+		iShunt, err := sensor.sensor.ReadShuntCurrent()
+		if err != nil {
+			mylogger.Error.Printf("%s", err)
+		}
+		fmt.Printf("%v volts, %v amps\n", vBus, iShunt)
 
 		sensor.mu.Lock()
-		sensor.volts = volts
-		sensor.amps = amps
+		sensor.volts = vBus
+		sensor.amps = iShunt
 		sensor.mu.Unlock()
-		time.Sleep(1 * time.Second)
+		time.Sleep(1333 * time.Millisecond)
 	}
 }

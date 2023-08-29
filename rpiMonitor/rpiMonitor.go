@@ -3,7 +3,7 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package rpidriver
+package rpiMonitor
 
 import (
 	"os/exec"

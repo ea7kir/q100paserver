@@ -14,11 +14,11 @@ import (
 	"os/signal"
 
 	"q100paserver/ds18b20monitor"
-	"q100paserver/fandriver"
+	"q100paserver/fanMonitor"
 	"q100paserver/ina226monitor"
 	"q100paserver/mylogger"
-	"q100paserver/psudriver"
-	"q100paserver/rpidriver"
+	"q100paserver/psuSwitcher"
+	"q100paserver/rpiMonitor"
 	"strings"
 	"sync"
 	"syscall"
@@ -27,11 +27,11 @@ import (
 const kServerAddress = "0.0.0.0:9999" // "0.0.0.0:8765"
 
 func configureDevices() {
-	psudriver.Configure()
+	psuSwitcher.Configure()
 	ina226monitor.Configure()
 	ds18b20monitor.Configure()
-	fandriver.Configure()
-	rpidriver.Configure()
+	fanMonitor.Configure()
+	rpiMonitor.Configure()
 }
 
 // TODO: encode to json and include a version number (use json: tags).
@@ -41,25 +41,25 @@ func readDevices() string {
 		ds18b20monitor.PreAmpTemperature(),
 		ds18b20monitor.PaTemperature(),
 		ina226monitor.PaCurrent(),
-		fandriver.EnclosureIntake(),
-		fandriver.EnclosureExtract(),
-		fandriver.FinalPAintake(),
-		fandriver.FinalPAextract(),
-		rpidriver.Temperature(),
+		fanMonitor.EnclosureIntake(),
+		fanMonitor.EnclosureExtract(),
+		fanMonitor.FinalPAintake(),
+		fanMonitor.FinalPAextract(),
+		rpiMonitor.Temperature(),
 	)
 	return str
 }
 
 func shutdownDevices() {
-	psudriver.Shutdown()
+	psuSwitcher.Shutdown()
 	mylogger.Info.Printf("Shutdown psudriver     - done")
-	fandriver.Shutdown()
+	fanMonitor.Shutdown()
 	mylogger.Info.Printf("Shutdown fandriver     - done")
 	ina226monitor.Shutdown()
 	mylogger.Info.Printf("Shutdown ina226driver  - done")
 	ds18b20monitor.Shutdown()
 	mylogger.Info.Printf("Shutdown ds18b20driver - done")
-	rpidriver.Shutdown()
+	rpiMonitor.Shutdown()
 	mylogger.Info.Printf("Shutdown rpidriver     - done")
 }
 
@@ -125,7 +125,7 @@ func (s *Server) handleConection(conn net.Conn) {
 	defer conn.Close()
 
 	mylogger.Info.Printf("got connection from: %v\n", conn.RemoteAddr())
-	psudriver.Up()
+	psuSwitcher.Up()
 	clientReader := bufio.NewReader(conn)
 
 	for {
@@ -136,16 +136,16 @@ func (s *Server) handleConection(conn net.Conn) {
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
 				mylogger.Info.Printf("Connection closed with CLOSE")
-				psudriver.Down()
+				psuSwitcher.Down()
 				return
 			}
 		case io.EOF:
 			mylogger.Info.Printf("Connection closed with io.EOF")
-			psudriver.Down()
+			psuSwitcher.Down()
 			return
 		default:
 			mylogger.Warn.Printf("Connection closed abnormally: %v", err)
-			psudriver.Down()
+			psuSwitcher.Down()
 			return
 		}
 
