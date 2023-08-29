@@ -16,6 +16,7 @@ import (
 
 const (
 	// FAN SENSORS with 1k0 pull-up resistors on sensor lines to 3.3v
+
 	kEncIntakePin  = rpi.J8p29 // pin 29 GPIO_5
 	kEncExtractPin = rpi.J8p31 // pin 31 GPIO_6
 	kPaIntakePin   = rpi.J8p33 // pin 33 GPIO_13

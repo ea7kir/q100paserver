@@ -17,12 +17,15 @@ import (
 
 const (
 	// WAVESHARE RPi RELAY BOARD
-	RELAY_28v_GPIO = 26 // pin 37 GPIO_26 (CH1 P25)
-	RELAY_12v_GPIO = 20 // pin 38 GPIO_20 (CH2 P28)
-	RELAY_5v_GPIO  = 21 // pin 40 GPIO_21 (CH3 P29)
+
+	k28vRelayPin = rpi.J8p37 // pin 37 GPIO_26 (CH1 P25)
+	k12vRelayPin = rpi.J8p38 // pin 38 GPIO_20 (CH2 P28)
+	k5vRelayPin  = rpi.J8p40 // pin 40 GPIO_21 (CH3 P29)
+
 	// NOTE: the opto coupleers need reverse logic
-	RELAY_ON  = 0
-	RELAY_OFF = 1
+
+	kRelayOn  = 0
+	kRelayOff = 1
 )
 
 var (
@@ -33,24 +36,24 @@ var (
 )
 
 func Configure() {
-	relay28vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p37, gpiod.AsOutput(0))
+	relay28vLine, err := gpiod.RequestLine("gpiochip0", k28vRelayPin, gpiod.AsOutput(0))
 	if err != nil {
 		mylogger.Fatal.Fatalf("Failed to configure 28v rpi.J8p37 : %s", err)
 	}
 	relay28v = relay28vLine
-	relay28v.SetValue(RELAY_OFF)
-	relay12vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p38, gpiod.AsOutput(0))
+	relay28v.SetValue(kRelayOff)
+	relay12vLine, err := gpiod.RequestLine("gpiochip0", k12vRelayPin, gpiod.AsOutput(0))
 	if err != nil {
 		mylogger.Fatal.Fatalf("Failed to configure 12v rpi.J8p38 : %s", err)
 	}
 	relay12v = relay12vLine
-	relay12v.SetValue(RELAY_OFF)
-	relay5vLine, err := gpiod.RequestLine("gpiochip0", rpi.J8p40, gpiod.AsOutput(0))
+	relay12v.SetValue(kRelayOff)
+	relay5vLine, err := gpiod.RequestLine("gpiochip0", k5vRelayPin, gpiod.AsOutput(0))
 	if err != nil {
 		mylogger.Fatal.Fatalf("Failed to configure 5v rpi.J8p40 : %s", err)
 	}
 	relay5v = relay5vLine
-	relay5v.SetValue(RELAY_OFF)
+	relay5v.SetValue(kRelayOff)
 }
 
 func Shutdown() {
@@ -68,22 +71,22 @@ func Shutdown() {
 
 func Up() {
 	mylogger.Info.Printf("Power UP is starting...")
-	relay5v.SetValue(RELAY_ON)
+	relay5v.SetValue(kRelayOn)
 	time.Sleep(200 * time.Millisecond)
-	relay28v.SetValue(RELAY_ON)
+	relay28v.SetValue(kRelayOn)
 	time.Sleep(200 * time.Millisecond)
-	relay12v.SetValue(RELAY_ON)
+	relay12v.SetValue(kRelayOn)
 	isUp = true
 	mylogger.Info.Printf("Power UP has completed\n")
 }
 
 func Down() {
 	mylogger.Info.Printf("Power DOWN is starting...\n")
-	relay28v.SetValue(RELAY_OFF)
+	relay28v.SetValue(kRelayOff)
 	time.Sleep(200 * time.Millisecond)
-	relay5v.SetValue(RELAY_OFF)
+	relay5v.SetValue(kRelayOff)
 	time.Sleep(200 * time.Millisecond)
-	relay12v.SetValue(RELAY_OFF)
+	relay12v.SetValue(kRelayOff)
 	isUp = false
 	mylogger.Info.Printf("Power DOWN has completed\n")
 }

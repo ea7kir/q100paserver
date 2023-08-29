@@ -3,43 +3,25 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package ina226driver
+package ina226monitor
 
 import (
 	"sync"
 	"time"
 )
 
-// TODO: install i2c-tools
-// sudo apt install -y i2c-tools
-// TODO: enable I2C in config
-
-// INA226 current/voltage sensors
-// To discover I2C devices
-// $ sudo i2cdetect -y 1
-// TODO: address could be 0x40, 0x41 or 0x42
-// I2C pin3 GPIO2 SDA, pin 5 GPIO3 SCL
-// 4k7 pull-up resistors on data lines to 3.3v
-
-// Configuration values
 const (
+	// INA226 current/voltage sensors
+	// To discover I2C devices
+	// $ sudo i2cdetect -y 1
+	// Address could be 0x40, 0x41 or 0x42
+	// Connect to pin3 GPIO2 SDA, pin 5 GPIO3 SCL
+	// 4k7 pull-up resistors on data lines to 3.3v
+
 	kFinalPaAddrees = 0x40
-	kFinalPaShunt   = 0.0021 // modified from 0,002 to get correct current reading
+	kFinalPaShunt   = 0.002 // modified to 0.0021 from 0.002 to get correct current reading
 	kFinalPaMaxAmps = 10
 )
-
-/* PYTHON CONSTANTS
-const (
-	INA226_RESET                     uint16 = 0x8000 // UInt16
-	INA226_REG_CALIBRATION           uint8  = 0x05   // UInt8
-	INA226_REG_CONFIGURATION         uint8  = 0x00   // UInt8
-	INA226_TIME_8MS                  uint8  = 7      // 8.244ms UInt8
-	INA226_AVERAGES_16               uint8  = 2      // UInt8
-	INA226_MODE_SHUNT_BUS_CONTINUOUS uint8  = 7      // UI
-	INA226_REG_BUS_VOLTAGE           uint8  = 0x02   // UInt8
-	INA226_REG_CURRENT               uint8  = 0x04   // UInt8
-)
-*/
 
 type (
 	ina226Type struct {

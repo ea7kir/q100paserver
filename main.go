@@ -13,9 +13,9 @@ import (
 	"os"
 	"os/signal"
 
-	"q100paserver/ds18b20driver"
+	"q100paserver/ds18b20monitor"
 	"q100paserver/fandriver"
-	"q100paserver/ina226driver"
+	"q100paserver/ina226monitor"
 	"q100paserver/mylogger"
 	"q100paserver/psudriver"
 	"q100paserver/rpidriver"
@@ -24,12 +24,12 @@ import (
 	"syscall"
 )
 
-const PORT = "9999"
+const kServerAddress = "0.0.0.0:9999" // "0.0.0.0:8765"
 
 func configureDevices() {
 	psudriver.Configure()
-	ina226driver.Configure()
-	ds18b20driver.Configure()
+	ina226monitor.Configure()
+	ds18b20monitor.Configure()
 	fandriver.Configure()
 	rpidriver.Configure()
 }
@@ -38,9 +38,9 @@ func configureDevices() {
 // Could also have the client requst a version number to match
 func readDevices() string {
 	str := fmt.Sprintf("Pre %4.1f°, PA %4.1f° %3.1fA, Enc %04d->%04d, PA %04d->%04d, Pi %4.1f°",
-		ds18b20driver.PreAmpTemperature(),
-		ds18b20driver.PaTemperature(),
-		ina226driver.PaCurrent(),
+		ds18b20monitor.PreAmpTemperature(),
+		ds18b20monitor.PaTemperature(),
+		ina226monitor.PaCurrent(),
 		fandriver.EnclosureIntake(),
 		fandriver.EnclosureExtract(),
 		fandriver.FinalPAintake(),
@@ -55,9 +55,9 @@ func shutdownDevices() {
 	mylogger.Info.Printf("Shutdown psudriver     - done")
 	fandriver.Shutdown()
 	mylogger.Info.Printf("Shutdown fandriver     - done")
-	ina226driver.Shutdown()
+	ina226monitor.Shutdown()
 	mylogger.Info.Printf("Shutdown ina226driver  - done")
-	ds18b20driver.Shutdown()
+	ds18b20monitor.Shutdown()
 	mylogger.Info.Printf("Shutdown ds18b20driver - done")
 	rpidriver.Shutdown()
 	mylogger.Info.Printf("Shutdown rpidriver     - done")
@@ -169,7 +169,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(quit)
 
-	server := NewServer("0.0.0.0:" + PORT)
+	server := NewServer(kServerAddress)
 
 	configureDevices()
 

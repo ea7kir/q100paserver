@@ -3,7 +3,7 @@
  *  Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
  */
 
-package ds18b20driver
+package ds18b20monitor
 
 import (
 	"os"
@@ -15,22 +15,21 @@ import (
 	"sync"
 )
 
-// DS18B20 TEMPERATURE SENSORS
-// To enable the 1-wire bus add "dtoverlay=w1-gpio" to /boot/config.txt and reboot.
-// For permissions, add "/sys/bus/w1/devices/28*/w1_slave r" to /opt/pigpio/access.
-// Default connection is data line to GPIO 4 (pin 7).
-// 4k7 pull-up on data line to 3V3
-//
-// Set the slave ID for each DS18B20 TO-92 device
-// To find those available, type: cd /sys/bus/w1/devices/
-// and look for directories named like: 28-3c01d607d440
-
-// TRY https://pkg.go.dev/periph.io/x/conn/v3/onewire
-
-// 'ls /sys/bus/w1/devices/' on my setup yeilds the floowing...
 const (
-	kPreampSensorAddress = "28-3c01d607d440"
-	kPaSensorAddress     = "28-3c01d607e348"
+	// DS18B20 TEMPERATURE SENSORS
+	// To enable the 1-wire bus add "dtoverlay=w1-gpio" to /boot/config.txt and reboot.
+	// For permissions, add "/sys/bus/w1/devices/28*/w1_slave r" to /opt/pigpio/access.
+	// Default connection is data line to GPIO 4 (pin 7).
+	// 4k7 pull-up on data line to 3V3
+	//
+	// Set the slave ID for each DS18B20 TO-92 device
+	// To find those available, type: cd /sys/bus/w1/devices/
+	// and look for directories named like: 28-3c01d607d440
+	//
+	// 'ls /sys/bus/w1/devices/' on my setup yeilds the floowing...
+
+	kPaSensorSlaveId     = "28-3c01d607e348" // pin 7 GPIO_4
+	kPreAmpSensorSlaveId = "28-3c01d607d440" // pin 7 GPIO_4)
 )
 
 type (
@@ -59,8 +58,8 @@ func newDs18b20(slaveId string) *ds18b20Type {
 }
 
 func Configure() {
-	preAmp = newDs18b20(kPreampSensorAddress)
-	finalPA = newDs18b20(kPaSensorAddress)
+	preAmp = newDs18b20(kPreAmpSensorSlaveId)
+	finalPA = newDs18b20(kPaSensorSlaveId)
 	go readTemperatureFor(preAmp)
 	go readTemperatureFor(finalPA)
 }
