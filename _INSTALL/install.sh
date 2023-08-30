@@ -34,6 +34,8 @@ echo "-- Enable 1-Wire and I2C"
 echo "-------------------------------"
 echo
 
+echo "TODO: by command line"
+
 echo
 echo "-------------------------------"
 echo "-- Installing GIT"
@@ -69,11 +71,12 @@ cd
 
 echo
 echo "-------------------------------"
-echo "-- Done"
+echo "-- Done.  Reboot in 10 seconds"
+echo
+echo "Clone q100paserver from within VSCODE"
+echo "https://github.com/ea7kir/q100paserver.git"
 echo "-------------------------------"
 echo
 
-echo "Clone q100paserver from within VSCODE"
-echo "using: https://github.com/ea7kir/q100paserver.git"
-echo
-echo "To run q100paserver, type: ./q100paserver"
+sleep 10
+sudo reboot
