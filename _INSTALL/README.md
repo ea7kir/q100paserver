@@ -16,11 +16,11 @@ CONFIGURE:
 	Enable SSH
 		Use password authentication
 	Set username and password
-		Username:			pi
-		Password: 			<password>
+		Username:           pi
+		Password:           <password>
 	Set locale settings
-		Time zone:			<Europe/Madrid>
-		Keyboard layout:	<us>
+		Time zone:          <Europe/Madrid>
+		Keyboard layout:    <us>
 	Eject media when finished
 SAVE and WRITE
 ```
