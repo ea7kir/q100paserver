@@ -1,11 +1,7 @@
 # Q-100 PA Server
 Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. The readings are sent back whenever the q100transmitter client is connected.
 
-<code style="color : red">THIS PROJECT IS IN EARLY DEVELOPMENT AND MAY BE UNSTABLE</code>
-
-$${\color{red}Welcome \space \color{lightblue}To \space \color{lightgreen}{github}}$$
-
-$${\color{red}THIS PROJECT IS IN EARLY DEVELOPMENT AND MAY BE UNSTABLE}$$
+$${\color{red}THIS\space PROJECT\space IS\space IN\space EARLY\space DEVELOPMENT\space AND\space MAY\space BE\space UNSTABLE}$$
 
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM
