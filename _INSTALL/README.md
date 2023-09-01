@@ -27,7 +27,7 @@ SAVE and WRITE
 
 Insert the card into the Raspberry Pi and switch on
 
-WARNING: the Pi may reboot during the install, so please allow it to complete
+WARNING: the Pi will reboot during the install, so please allow it to complete
 
 ## Remote login from a Mac, PC or Linux host
 

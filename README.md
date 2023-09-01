@@ -1,10 +1,15 @@
 # Q-100 PA Server
-Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. The readings are sent back whenever the q100transmitter clien is connected.
+Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. The readings are sent back whenever the q100transmitter client is connected.
+
+<code style="color : red">THIS PROJECT IS IN EARLY DEVELOPMENT AND MAY BE UNSTABLE</code>
+
+$${\color{red}Welcome \space \color{lightblue}To \space \color{lightgreen}{github}}$
+
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM
 - Waveshare RPi relay board
 - 2 x DS18B20 temperature sensors
-- 1 x INA226 current/voltage sensors
+- 1 x INA226 current/voltage sensor
 - 4 x 12v fans
 - 1 x 5v power supply
 - 1 x 12v power supply
@@ -12,8 +17,10 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 - 2 x 12/230v contactor
 
 **A keyboard and mouse are not required at any time**
+## Connections
+TODO: add schenatics
 ## Installing
-TODO
+TODO: install script is incomplete
 ## License
 Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
 
