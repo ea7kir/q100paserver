@@ -3,7 +3,7 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 
 <code style="color : red">THIS PROJECT IS IN EARLY DEVELOPMENT AND MAY BE UNSTABLE</code>
 
-$${\color{red}Welcome \space \color{lightblue}To \space \color{lightgreen}{github}}$
+$${\color{red}Welcome \space \color{lightblue}To \space \color{lightgreen}{github}}$$
 
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM
