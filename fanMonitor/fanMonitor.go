@@ -6,10 +6,11 @@
 package fanMonitor
 
 import (
-	"q100paserver/mylogger"
+	"os"
 	"sync"
 	"time"
 
+	"github.com/ea7kir/qLog"
 	"github.com/warthog618/gpiod"
 	"github.com/warthog618/gpiod/device/rpi"
 )
@@ -54,7 +55,8 @@ func newFan(j8Pin int) *fanType {
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
-		mylogger.Fatal.Fatalf("line %v failed: %v", l, err)
+		qLog.Fatal("line %v failed: %v", l, err)
+		os.Exit(1)
 	}
 	return &fanType{
 		line: l,
@@ -145,12 +147,12 @@ func rpmForFan(fan *fanType) {
 			i++
 			v1, err := fan.line.Value()
 			if err != nil {
-				mylogger.Warn.Printf(" %v", err)
+				qLog.Warn(" %v", err)
 			}
 			time.Sleep(3 * time.Millisecond)
 			v2, err := fan.line.Value()
 			if err != nil {
-				mylogger.Warn.Printf(" %v", err)
+				qLog.Warn(" %v", err)
 			}
 			if v1 != v2 {
 				newRpm += 30

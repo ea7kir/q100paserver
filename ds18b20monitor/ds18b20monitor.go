@@ -7,12 +7,13 @@ package ds18b20monitor
 
 import (
 	"os"
-	"q100paserver/mylogger"
 	"strconv"
 	"time"
 
 	"strings"
 	"sync"
+
+	"github.com/ea7kir/qLog"
 )
 
 const (
@@ -102,17 +103,17 @@ func readTemperatureFor(sensor *ds18b20Type) {
 		time.Sleep(475 * time.Millisecond)
 		busBusy.Unlock()
 		if err != nil {
-			mylogger.Error.Printf("1-Wire %s failed to read\n%v", sensor.slaveId, err)
+			qLog.Error("1-Wire %s failed to read\n%v", sensor.slaveId, err)
 		}
 		str := string(data)
 		if !strings.Contains(str, "YES") {
-			mylogger.Warn.Printf("1-Wire %s did not contain YES", sensor.slaveId)
+			qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
 		} else {
 			subStr := strings.Split(str, "t=")
 			subStr1 := strings.TrimSpace(subStr[1])
 			tempC, err = strconv.ParseFloat(subStr1, 64)
 			if err != nil {
-				mylogger.Warn.Printf("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+				qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
 			}
 		}
 		tempC /= 1000.0

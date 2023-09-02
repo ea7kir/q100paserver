@@ -7,10 +7,12 @@ package ina226monitor
 
 import (
 	"fmt"
+	"os"
 	"q100paserver/ina226Driver"
-	"q100paserver/mylogger"
 	"sync"
 	"time"
+
+	"github.com/ea7kir/qLog"
 )
 
 const (
@@ -66,7 +68,8 @@ func Configure() {
 	finalPA = newIna226sensor(kFinalPaI2cAddress, kFinalPaShunt, kFinalPaMaxAmps)
 	sensor, err := ina226Driver.NewDriver(kI2cBus, kFinalPaI2cAddress)
 	if err != nil {
-		mylogger.Fatal.Fatalln(err)
+		qLog.Fatal("failed NewDriver %s: ", err)
+		os.Exit(1)
 	}
 	err = sensor.Configure(
 		ina226Driver.INA226_SHUNT_CONV_TIME_1100US,
@@ -75,7 +78,8 @@ func Configure() {
 		ina226Driver.INA226_MODE_SHUNT_BUS_CONT,
 	)
 	if err != nil {
-		mylogger.Fatal.Fatalln(err)
+		qLog.Fatal("failed Configure %s: ", err)
+		os.Exit(1)
 	}
 	sensor.Calibrate(kFinalPaShunt, kFinalPaMaxAmps)
 	finalPA.sensor = sensor
@@ -111,11 +115,11 @@ func readVoltsAmpsFor(sensor *ina226sensorType) {
 
 		vBus, err := sensor.sensor.ReadBusVoltage()
 		if err != nil {
-			mylogger.Error.Printf("%s", err)
+			qLog.Error("%s", err)
 		}
 		iShunt, err := sensor.sensor.ReadShuntCurrent()
 		if err != nil {
-			mylogger.Error.Printf("%s", err)
+			qLog.Error("%s", err)
 		}
 		fmt.Printf("%v volts, %v amps\n", vBus, iShunt)
 
