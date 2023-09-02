@@ -22,12 +22,13 @@ After=mult-user.target
 
 [Service]
 User=pi
+Group=pi
 
 #WorkingDirectory=/home/pi/Q100/q100paserver
 
 Type=simple
 
-Restart=always
+@Restart=always
 #Restart=on-failure
 #RestartSec=5
 
