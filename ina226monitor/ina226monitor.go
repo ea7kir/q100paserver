@@ -6,7 +6,6 @@
 package ina226monitor
 
 import (
-	"fmt"
 	"os"
 	"q100paserver/ina226Driver"
 	"sync"
@@ -121,7 +120,7 @@ func readVoltsAmpsFor(sensor *ina226sensorType) {
 		if err != nil {
 			qLog.Error("%s", err)
 		}
-		fmt.Printf("%v volts, %v amps\n", vBus, iShunt)
+		// fmt.Printf("%v volts, %v amps\n", vBus, iShunt)
 
 		sensor.mu.Lock()
 		sensor.volts = vBus
