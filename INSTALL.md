@@ -33,6 +33,12 @@ WARNING: the Pi will reboot during the install, so please allow it to complete
 
 ```
 ssh pi@q100paserver.local
+
+wget https://raw.githubusercontent.com/ea7kir/q100paserver/main/etc/install.sh
+
+chmod +x install.sh
+
+./install.sh
 ```
 
-## More to follow goes here
+## OLD NOTES ----------------------------------------------------------
