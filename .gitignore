@@ -1,3 +1,4 @@
-logs.txt
+# ignore executable binary
 q100paserver
+# ignore tests
 *.test

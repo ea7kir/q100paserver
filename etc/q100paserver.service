@@ -1,4 +1,4 @@
-# cd /home/pi/Q100/q100paserver/_INSTALL
+# cd /home/pi/Q100/q100paserver/etc
 # sudo cp q100paserver.service /etc/systemd/system/
 # sudo chmod 644 /etc/systemd/system/q100paserver.service
 # sudo systemctl daemon-reload
