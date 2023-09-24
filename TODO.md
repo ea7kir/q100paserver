@@ -1,7 +1,7 @@
 # TODO
 
 - review qLog log levels
-- finish the install script
+- test install.sh
 - add /doc folder with more info
 - check for memory leaks
 - reduce external dependances

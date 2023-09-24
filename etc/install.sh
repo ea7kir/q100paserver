@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Q100 PA Server for Raspberry Pi 4
+# Install Q100 PA Server on Raspberry Pi 4
 # Orignal design by Michael, EA7KIR
 
 GOVERSION=1.21.0
