@@ -28,6 +28,8 @@ while true; do
     esac
 done
 
+mkdir /home/pi/Q100
+
 echo Updateing Pi OS
 sudo apt update
 sudo apt -y full-upgrade
@@ -71,14 +73,12 @@ sudo tar -C /usr/local -xzf $GOFILE
 cd
 
 echo Cloning q100receiver to /home/pi/Q100
-cd
-mkdir Q100
-cd Q100
+cd /home/pi/Q100
 git clone https://github.com/ea7kir/q100paserver.git
 cd
 
-echo Copying q100receiver.service
-cd /home/pi/Q100/etc
+echo Copying q100paserver.service
+cd /home/pi/Q100/q100paserver/etc
 sudo cp q100paserver.service /etc/systemd/system/
 sudo chmod 644 /etc/systemd/system/q100paserver.service
 sudo systemctl daemon-reload
