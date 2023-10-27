@@ -121,26 +121,27 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 	// ie. 1 pulse every 7.5 milliseconds
 	var newRpm int64
 	var fan *fanType
+	const sampleTime = 1003 * time.Millisecond
+	timer := time.NewTimer(sampleTime)
+	timer.Stop()
 	for {
+	Loop:
 		for i := 0; i < len(fanList); i++ {
 			fan = fanList[i]
-			// }
 			newRpm = 0
-			const loopTime = 1003 * time.Millisecond
-			var j int
-			for start := time.Now(); ; {
+			timer.Reset(1003 * time.Millisecond)
+			for {
 				select {
 				case <-done:
 					return
+				case <-timer.C:
+					fan.mu.Lock()
+					fan.rpm = newRpm
+					fan.mu.Unlock()
+					time.Sleep(250 * time.Millisecond)
+					continue Loop
 				default:
 				}
-				// no need to checl end time quite so often, slow it down by 10 iterations
-				if j%10 == 0 {
-					if time.Since(start) > loopTime {
-						break
-					}
-				}
-				j++
 				v1, err := fan.line.Value()
 				if err != nil {
 					qLog.Warn(" %v", err)
@@ -154,10 +155,6 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 					newRpm += 30
 				}
 			}
-			fan.mu.Lock()
-			fan.rpm = newRpm
-			fan.mu.Unlock()
-			time.Sleep(1 * time.Second)
 		}
 	}
 }
