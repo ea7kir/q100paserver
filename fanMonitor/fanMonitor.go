@@ -28,16 +28,17 @@ type (
 	fanType struct {
 		line *gpiod.Line
 		mu   sync.Mutex
-		quit chan bool
 		rpm  int64
 	}
 )
 
 var (
-	encIntake  *fanType
-	encExtract *fanType
-	paIntake   *fanType
-	paExtract  *fanType
+	encIntake   *fanType
+	encExtract  *fanType
+	paIntake    *fanType
+	paExtract   *fanType
+	fans        []*fanType
+	stopChannel = make(chan struct{})
 )
 
 /*
@@ -59,12 +60,9 @@ func newFan(j8Pin int) *fanType {
 		os.Exit(1)
 	}
 	return &fanType{
-		line: l,
 		mu:   sync.Mutex{},
-		// ch:     make(chan int64),
-		quit: make(chan bool),
-		// newRpm: 0,
-		rpm: 0,
+		line: l,
+		rpm:  0,
 	}
 }
 
@@ -73,18 +71,12 @@ func Configure() {
 	encExtract = newFan(kEncExtractPin)
 	paIntake = newFan(kPaIntakePin)
 	paExtract = newFan(kPaExtractPin)
-	go rpmForFan(encIntake)
-	go rpmForFan(encExtract)
-	go rpmForFan(paIntake)
-	go rpmForFan(paExtract)
+	fans = append(fans, encIntake, encExtract, paIntake, paExtract)
+	go readFanSpeeds(fans, stopChannel)
 }
 
 func Shutdown() {
-	// kill the go routines
-	encIntake.quit <- true
-	encExtract.quit <- true
-	paIntake.quit <- true
-	paExtract.quit <- true
+	close(stopChannel)
 	// revert lines to input on the way out
 	encIntake.line.Reconfigure(gpiod.AsInput)
 	encIntake.line.Close()
@@ -124,43 +116,89 @@ func FinalPAextract() int64 {
 //
 //	4000 rpm equates to 8000 ppm or 133 pps
 //	ie. 1 pulse every 7.5 milliseconds
-func rpmForFan(fan *fanType) {
+func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 	// 4000 rpm equates to 8000 ppm or 133 pps
 	// ie. 1 pulse every 7.5 milliseconds
 	var newRpm int64
+	var fan *fanType
 	for {
-		newRpm = 0
-		const loopTime = 1003 * time.Millisecond
-		var i int
-		for start := time.Now(); ; {
-			// no need to checl end time quite so often, slow it down by 10 iterations
-			if i%10 == 0 {
+		for i := 0; i < len(fanList); i++ {
+			fan = fanList[i]
+			// }
+			newRpm = 0
+			const loopTime = 1003 * time.Millisecond
+			var j int
+			for start := time.Now(); ; {
 				select {
-				case <-fan.quit:
+				case <-done:
 					return
 				default:
 				}
-				if time.Since(start) > loopTime {
-					break
+				// no need to checl end time quite so often, slow it down by 10 iterations
+				if j%10 == 0 {
+					if time.Since(start) > loopTime {
+						break
+					}
+				}
+				j++
+				v1, err := fan.line.Value()
+				if err != nil {
+					qLog.Warn(" %v", err)
+				}
+				time.Sleep(3 * time.Millisecond)
+				v2, err := fan.line.Value()
+				if err != nil {
+					qLog.Warn(" %v", err)
+				}
+				if v1 != v2 {
+					newRpm += 30
 				}
 			}
-			i++
-			v1, err := fan.line.Value()
-			if err != nil {
-				qLog.Warn(" %v", err)
-			}
-			time.Sleep(3 * time.Millisecond)
-			v2, err := fan.line.Value()
-			if err != nil {
-				qLog.Warn(" %v", err)
-			}
-			if v1 != v2 {
-				newRpm += 30
-			}
+			fan.mu.Lock()
+			fan.rpm = newRpm
+			fan.mu.Unlock()
+			time.Sleep(1 * time.Second)
 		}
-		fan.mu.Lock()
-		fan.rpm = newRpm
-		fan.mu.Unlock()
-		time.Sleep(1 * time.Second)
 	}
 }
+
+// func rpmForFan(fan *fanType) {
+// 	// 4000 rpm equates to 8000 ppm or 133 pps
+// 	// ie. 1 pulse every 7.5 milliseconds
+// 	var newRpm int64
+// 	for {
+// 		newRpm = 0
+// 		const loopTime = 1003 * time.Millisecond
+// 		var i int
+// 		for start := time.Now(); ; {
+// 			// no need to checl end time quite so often, slow it down by 10 iterations
+// 			if i%10 == 0 {
+// 				select {
+// 				case <-done:
+// 					return
+// 				default:
+// 				}
+// 				if time.Since(start) > loopTime {
+// 					break
+// 				}
+// 			}
+// 			i++
+// 			v1, err := fan.line.Value()
+// 			if err != nil {
+// 				qLog.Warn(" %v", err)
+// 			}
+// 			time.Sleep(3 * time.Millisecond)
+// 			v2, err := fan.line.Value()
+// 			if err != nil {
+// 				qLog.Warn(" %v", err)
+// 			}
+// 			if v1 != v2 {
+// 				newRpm += 30
+// 			}
+// 		}
+// 		fan.mu.Lock()
+// 		fan.rpm = newRpm
+// 		fan.mu.Unlock()
+// 		time.Sleep(1 * time.Second)
+// 	}
+// }

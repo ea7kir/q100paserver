@@ -35,7 +35,6 @@ const (
 type (
 	ina226sensorType struct {
 		mu    sync.Mutex
-		quit  chan bool
 		volts float64
 		amps  float64
 		// address int8
@@ -46,13 +45,13 @@ type (
 )
 
 var (
-	finalPA *ina226sensorType
+	finalPA     *ina226sensorType
+	stopChannel = make(chan struct{})
 )
 
 func newIna226sensor(address int8, shunt float64, maxAmps float64) *ina226sensorType {
 	return &ina226sensorType{
 		mu:    sync.Mutex{},
-		quit:  make(chan bool),
 		volts: 0.0,
 		amps:  0.0,
 		// address: address,
@@ -84,11 +83,11 @@ func Configure() {
 	finalPA.sensor = sensor
 	// for any other goes here
 
-	go readVoltsAmpsFor(finalPA)
+	go readVoltsAmpsFor(finalPA, stopChannel)
 }
 
 func Shutdown() {
-	finalPA.quit <- true
+	close(stopChannel)
 }
 
 func PaVoltage() float64 {
@@ -104,10 +103,10 @@ func PaCurrent() float64 {
 }
 
 // Go routine to read voltage and current
-func readVoltsAmpsFor(sensor *ina226sensorType) {
+func readVoltsAmpsFor(sensor *ina226sensorType, done chan struct{}) {
 	for {
 		select {
-		case <-sensor.quit:
+		case <-done:
 			return
 		default:
 		}

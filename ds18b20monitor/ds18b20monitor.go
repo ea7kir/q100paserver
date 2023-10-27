@@ -36,23 +36,21 @@ const (
 type (
 	ds18b20Type struct {
 		mu      sync.Mutex
-		quit    chan bool
 		tempC   float64
 		slaveId string
 	}
 )
 
 var (
-	preAmp  *ds18b20Type
-	finalPA *ds18b20Type
-	busBusy = sync.Mutex{} // to prevent concurrent access to the 1-wire bus
-	//                        but could this deadlock on shutdown?
+	preAmp      *ds18b20Type
+	finalPA     *ds18b20Type
+	sensors     []*ds18b20Type
+	stopChannel = make(chan struct{})
 )
 
 func newDs18b20(slaveId string) *ds18b20Type {
 	return &ds18b20Type{
 		mu:      sync.Mutex{},
-		quit:    make(chan bool),
 		tempC:   0.0,
 		slaveId: slaveId,
 	}
@@ -61,13 +59,12 @@ func newDs18b20(slaveId string) *ds18b20Type {
 func Configure() {
 	preAmp = newDs18b20(kPreAmpSensorSlaveId)
 	finalPA = newDs18b20(kPaSensorSlaveId)
-	go readTemperatureFor(preAmp)
-	go readTemperatureFor(finalPA)
+	sensors = append(sensors, preAmp, finalPA)
+	go readSensors(sensors, stopChannel)
 }
 
 func Shutdown() {
-	preAmp.quit <- true
-	finalPA.quit <- true
+	close(stopChannel)
 }
 
 func PreAmpTemperature() float64 {
@@ -87,39 +84,40 @@ func PaTemperature() float64 {
 //	Typical file contents
 //	73 01 4b 46 7f ff 0d 10 41 : crc=41 YES
 //	73 01 4b 46 7f ff 0d 10 41 t=23187
-func readTemperatureFor(sensor *ds18b20Type) {
+func readSensors(sensorList []*ds18b20Type, done chan struct{}) {
 	var tempC float64
-	file := "/sys/bus/w1/devices/" + sensor.slaveId + "/w1_slave"
+	var err error
+	var data []byte
 	for {
-		select {
-		case <-sensor.quit:
-			return
-		default:
-		}
-		tempC = 0.0
-		busBusy.Lock()
-		time.Sleep(475 * time.Millisecond)
-		data, err := os.ReadFile(file) // 75 bytes
-		time.Sleep(475 * time.Millisecond)
-		busBusy.Unlock()
-		if err != nil {
-			qLog.Error("1-Wire %s failed to read\n%v", sensor.slaveId, err)
-		}
-		str := string(data)
-		if !strings.Contains(str, "YES") {
-			qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
-		} else {
-			subStr := strings.Split(str, "t=")
-			subStr1 := strings.TrimSpace(subStr[1])
-			tempC, err = strconv.ParseFloat(subStr1, 64)
-			if err != nil {
-				qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+		for i := 0; i < len(sensorList); i++ {
+			select {
+			case <-done:
+				return
+			default:
 			}
+			sensor := sensorList[i]
+			file := "/sys/bus/w1/devices/" + sensor.slaveId + "/w1_slave"
+			tempC = 0.0
+			data, err = os.ReadFile(file) // 75 bytes
+			if err != nil {
+				qLog.Error("1-Wire %s failed to read\n%v", sensor.slaveId, err)
+			}
+			str := string(data)
+			if !strings.Contains(str, "YES") {
+				qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
+			} else {
+				subStr := strings.Split(str, "t=")
+				subStr1 := strings.TrimSpace(subStr[1])
+				tempC, err = strconv.ParseFloat(subStr1, 64)
+				if err != nil {
+					qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+				}
+			}
+			tempC /= 1000.0
+			sensor.mu.Lock()
+			sensor.tempC = tempC
+			sensor.mu.Unlock()
+			time.Sleep(1 * time.Second)
 		}
-		tempC /= 1000.0
-		sensor.mu.Lock()
-		sensor.tempC = tempC
-		sensor.mu.Unlock()
-		time.Sleep(5 * time.Second)
 	}
 }

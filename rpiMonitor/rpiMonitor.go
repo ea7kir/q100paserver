@@ -18,30 +18,29 @@ import (
 type (
 	rpiType struct {
 		mu    sync.Mutex
-		quit  chan bool
 		tempC float64
 	}
 )
 
 var (
-	rpiCpu *rpiType
+	rpiCpu      *rpiType
+	stopChannel = make(chan struct{})
 )
 
 func newRpi() *rpiType {
 	return &rpiType{
 		mu:    sync.Mutex{},
-		quit:  make(chan bool),
 		tempC: 0.0,
 	}
 }
 
 func Configure() {
 	rpiCpu = newRpi()
-	go readRpi(rpiCpu)
+	go readRpi(rpiCpu, stopChannel)
 }
 
 func Shutdown() {
-	rpiCpu.quit <- true
+	close(stopChannel)
 }
 
 /*
@@ -61,13 +60,13 @@ func Temperature() float64 {
 //	An alternative legacy way is read
 //	sys/class/thermal/thermal_zone0/temp
 //	51121
-func readRpi(pi *rpiType) {
+func readRpi(pi *rpiType, done chan struct{}) {
 	var tempC float64
 	var err error
 	var bytes []byte
 	for {
 		select {
-		case <-pi.quit:
+		case <-done:
 			return
 		default:
 		}
@@ -75,15 +74,15 @@ func readRpi(pi *rpiType) {
 		bytes, err = exec.Command("vcgencmd", "measure_temp").Output()
 		if err != nil {
 			qLog.Error("Failed to read rpi temperature: %v", err)
-		}
-		str0 := string(bytes[:])
-		str1 := strings.Split(str0, "=")
-		str2 := strings.Split(str1[1], "'C")
-		str3 := strings.TrimSpace(str2[0])
-		tempC, err = strconv.ParseFloat(str3, 64)
-		if err != nil {
-			qLog.Error("Failed to convert rpi temperature: %v", err)
 		} else {
+			str0 := string(bytes[:])
+			str1 := strings.Split(str0, "=")
+			str2 := strings.Split(str1[1], "'C")
+			str3 := strings.TrimSpace(str2[0])
+			tempC, err = strconv.ParseFloat(str3, 64)
+			if err != nil {
+				qLog.Error("Failed to convert rpi temperature: %v", err)
+			}
 			rpiCpu.mu.Lock()
 			rpiCpu.tempC = tempC
 			rpiCpu.mu.Unlock()
