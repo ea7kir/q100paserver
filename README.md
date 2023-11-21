@@ -18,11 +18,11 @@ $${\color{red}WARNING:\space ALL\space DEVELOPMENT\space TAKES\space PLACE\space
 ## Connections
 TODO: add more details and photos
 ## Installing
-NOTE: CURRENTLY REQUIRES PI OS BULLSEYE 64-BIT LIGHT (IE. NO DESKTOP)
+NOTE: CURRENTLY REQUIRES PI OS BULLSEYE 64-BIT LIGHT
 
-### Using Raspberry Pi Imager:
+### Using Raspberry Pi Imager v1.8.1:
 ```
-CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS Lite (64-bit)
+CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS (Legacy 64-bit) Lite
 
 CONFIGURE:
 	Set hostname:			paserver
