@@ -5,8 +5,6 @@
 
 GOVERSION=1.21.4
 
-echo WARNING: THIS INSTALL SCRIPT HAS NOT BEEN TESTED
-
 whoami | grep -q pi
 if [ $? != 0 ]; then
   echo Install must be performed as user pi
