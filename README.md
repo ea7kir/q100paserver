@@ -4,7 +4,7 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 $${\color{red}WARNING:\space ALL\space DEVELOPMENT\space TAKES\space PLACE\space ON\space THE\space MAIN\space BRANCH}$$
 
 ## Hardware
-- Raspberry Pi 4B with 4GB RAM
+- Raspberry Pi 4B with 4GB RAM (minimum)
 - Waveshare RPi relay board
 - 2 x DS18B20 temperature sensors
 - 1 x INA226 current/voltage sensor
@@ -12,7 +12,7 @@ $${\color{red}WARNING:\space ALL\space DEVELOPMENT\space TAKES\space PLACE\space
 - 1 x 5v power supply
 - 1 x 12v power supply
 - 1 x 28v power supply
-- 2 x 12/230v contactor
+- 2 x 12/230v contactors
 
 **A keyboard and mouse are not required at any time**
 ## Connections
@@ -32,7 +32,7 @@ CONFIGURE:
 		Username:			pi
 		Password: 			<password>
 	Set locale settings
-		Time zone:			<Europe/Madrid>
+		Time zone:			<Europe/Madrid> # or wherever you are
 		Keyboard layout:	<us>
 	Eject media when finished
 SAVE and WRITE
@@ -53,7 +53,7 @@ git clone https://github.com/ea7kir/q100paserver.git
 
 cd q100paserver/etc
 chmod +x install.sh
-./install
+./install.sh
 ```
 ## License
 Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
