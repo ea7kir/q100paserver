@@ -3,7 +3,7 @@
 # Install Q100 PA Server on Raspberry Pi 4
 # Orignal design by Michael, EA7KIR
 
-GOVERSION=1.21.0
+GOVERSION=1.21.4
 
 echo WARNING: THIS INSTALL SCRIPT HAS NOT BEEN TESTED
 
