@@ -54,11 +54,12 @@ sudo sh -c "echo 'dtoverlay=disable-wifi' >> /boot/config.txt"
 echo Disable Bluetooth
 sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/config.txt"
 
-echo Enable I2C
-sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
-
 echo Enable 1-Wire
 sudo sh -c "echo 'dtoverlay=w1-gpio' >> /boot/config.txt"
+
+echo Enable I2C
+# sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
+sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' /boot/config.txt
 
 ###################################################
 
