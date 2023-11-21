@@ -46,9 +46,10 @@ WARNING: the Pi may reboot during the install, so please allow it to complete
 ```
 ssh pi@paserver.local
 
+sudo apt -y install git
 mkdir Q100
 cd Q100
-git clone https://github.com/ea7kir/q100receiver.git
+git clone https://github.com/ea7kir/q100paserver.git
 
 cd q100paserver/etc
 chmod +x install.sh

@@ -71,9 +71,6 @@ echo -e 'export PATH=$PATH:/usr/local/go/bin' >> /home/pi/.profile
 
 echo "\n###################################################\n"
 
-echo Installing GIT
-sudo apt -y install git
-
 echo Installing i2c-tools
 sudo apt -y install i2c-tools
 
