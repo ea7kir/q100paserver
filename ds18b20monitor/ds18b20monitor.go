@@ -100,7 +100,7 @@ func readSensors(sensorList []*ds18b20Type, done chan struct{}) {
 			tempC = 0.0
 			data, err = os.ReadFile(file) // 75 bytes
 			if err != nil {
-				qLog.Error("1-Wire %s failed to read\n%v", sensor.slaveId, err)
+				qLog.Error("1-Wire %s failed to read\n%s", sensor.slaveId, err)
 			}
 			str := string(data)
 			if !strings.Contains(str, "YES") {

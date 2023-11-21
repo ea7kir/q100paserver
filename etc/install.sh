@@ -89,6 +89,8 @@ cd
 
 ###################################################
 
+chmod -x /home/pi/Q100/etc/install.sh # to prevent it from being run a second time
+
 echo "
 INSTALL HAS COMPLETED
    after rebooting...

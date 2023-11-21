@@ -56,7 +56,7 @@ func newFan(j8Pin int) *fanType {
 	// WithDebounce(deboucePeriod)
 	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
 	if err != nil {
-		qLog.Fatal("line %v failed: %v", l, err)
+		qLog.Fatal("line %v failed: %s", l, err)
 		os.Exit(1)
 	}
 	return &fanType{
@@ -144,12 +144,12 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 				}
 				v1, err := fan.line.Value()
 				if err != nil {
-					qLog.Warn(" %v", err)
+					qLog.Warn(" %s", err)
 				}
 				time.Sleep(3 * time.Millisecond)
 				v2, err := fan.line.Value()
 				if err != nil {
-					qLog.Warn(" %v", err)
+					qLog.Warn(" %s", err)
 				}
 				if v1 != v2 {
 					newRpm += 30
@@ -182,12 +182,12 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 // 			i++
 // 			v1, err := fan.line.Value()
 // 			if err != nil {
-// 				qLog.Warn(" %v", err)
+// 				qLog.Warn(" %s", err)
 // 			}
 // 			time.Sleep(3 * time.Millisecond)
 // 			v2, err := fan.line.Value()
 // 			if err != nil {
-// 				qLog.Warn(" %v", err)
+// 				qLog.Warn(" %s", err)
 // 			}
 // 			if v1 != v2 {
 // 				newRpm += 30

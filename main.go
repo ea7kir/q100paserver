@@ -111,7 +111,7 @@ func (s *Server) serve() {
 			case <-s.quit:
 				return
 			default:
-				qLog.Warn("accept error", err)
+				qLog.Warn("accept error: %s", err)
 			}
 		} else {
 			s.wg.Add(1)
@@ -146,7 +146,7 @@ func (s *Server) handleConection(conn net.Conn) {
 			psuSwitcher.Down()
 			return
 		default:
-			qLog.Warn("Connection closed abnormally: %v", err)
+			qLog.Warn("Connection closed abnormally: %s", err)
 			psuSwitcher.Down()
 			return
 		}
@@ -155,7 +155,7 @@ func (s *Server) handleConection(conn net.Conn) {
 		str := readDevices() + "\n"
 
 		if _, err = conn.Write([]byte(str)); err != nil {
-			qLog.Warn("failed to respond to client: %v\n", err)
+			qLog.Warn("failed to respond to client: %s\n", err)
 		}
 	}
 }

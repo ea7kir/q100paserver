@@ -73,7 +73,7 @@ func readRpi(pi *rpiType, done chan struct{}) {
 		tempC = 0.0
 		bytes, err = exec.Command("vcgencmd", "measure_temp").Output()
 		if err != nil {
-			qLog.Error("Failed to read rpi temperature: %v", err)
+			qLog.Error("Failed to read rpi temperature: %s", err)
 		} else {
 			str0 := string(bytes[:])
 			str1 := strings.Split(str0, "=")
@@ -81,7 +81,7 @@ func readRpi(pi *rpiType, done chan struct{}) {
 			str3 := strings.TrimSpace(str2[0])
 			tempC, err = strconv.ParseFloat(str3, 64)
 			if err != nil {
-				qLog.Error("Failed to convert rpi temperature: %v", err)
+				qLog.Error("Failed to convert rpi temperature: %s", err)
 			}
 			rpiCpu.mu.Lock()
 			rpiCpu.tempC = tempC
