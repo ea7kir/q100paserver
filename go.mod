@@ -1,6 +1,6 @@
 module q100paserver
 
-go 1.21.4
+go 1.21.5
 
 require (
 	github.com/ea7kir/qLog v1.0.1
