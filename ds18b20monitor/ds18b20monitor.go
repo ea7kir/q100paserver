@@ -101,23 +101,27 @@ func readSensors(sensorList []*ds18b20Type, done chan struct{}) {
 			data, err = os.ReadFile(file) // 75 bytes
 			if err != nil {
 				qLog.Error("1-Wire %s failed to read\n%s", sensor.slaveId, err)
+				continue
 			}
 			str := string(data)
 			if !strings.Contains(str, "YES") {
-				qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
-			} else {
-				subStr := strings.Split(str, "t=")
-				subStr1 := strings.TrimSpace(subStr[1])
-				tempC, err = strconv.ParseFloat(subStr1, 64)
-				if err != nil {
-					qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
-				}
+				// This flood the log file, so ignore it for now
+				// qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
+				continue
+			} //else {
+			subStr := strings.Split(str, "t=")
+			subStr1 := strings.TrimSpace(subStr[1])
+			tempC, err = strconv.ParseFloat(subStr1, 64)
+			if err != nil {
+				qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+				continue
 			}
+			//}
 			tempC /= 1000.0
 			sensor.mu.Lock()
 			sensor.tempC = tempC
 			sensor.mu.Unlock()
-			time.Sleep(1 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 	}
 }
