@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GOVERSION=1.21.5
+GOVERSION=1.22.0
 
 echo Update Pi OS
 sudo apt update
