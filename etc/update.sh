@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# updated to GO 1.22 on March 2 2024
+
 GOVERSION=1.22.0
 
 echo Update Pi OS

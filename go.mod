@@ -1,6 +1,8 @@
 module q100paserver
 
-go 1.21.5
+// updated to GO 1.22 on March 2 2024
+
+go 1.22.0
 
 require (
 	github.com/ea7kir/qLog v1.0.1
