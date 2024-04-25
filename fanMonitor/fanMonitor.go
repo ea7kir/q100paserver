@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/ea7kir/qLog"
-	"github.com/warthog618/gpiod"
-	"github.com/warthog618/gpiod/device/rpi"
+	"github.com/warthog618/go-gpiocdev"
+	"github.com/warthog618/go-gpiocdev/device/rpi"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 
 type (
 	fanType struct {
-		line *gpiod.Line
+		line *gpiocdev.Line
 		mu   sync.Mutex
 		rpm  int64
 	}
@@ -54,7 +54,7 @@ const WithRealtimeEventClock = LineEventClockRealtime
 func newFan(j8Pin int) *fanType {
 	// const deboucePeriod = 3 * time.Millisecond
 	// WithDebounce(deboucePeriod)
-	l, err := gpiod.RequestLine("gpiochip0", j8Pin, gpiod.AsInput)
+	l, err := gpiocdev.RequestLine("gpiochip0", j8Pin, gpiocdev.AsInput)
 	if err != nil {
 		qLog.Fatal("line %v failed: %s", l, err)
 		os.Exit(1)
@@ -78,13 +78,13 @@ func Configure() {
 func Shutdown() {
 	close(stopChannel)
 	// revert lines to input on the way out
-	encIntake.line.Reconfigure(gpiod.AsInput)
+	encIntake.line.Reconfigure(gpiocdev.AsInput)
 	encIntake.line.Close()
-	encExtract.line.Reconfigure(gpiod.AsInput)
+	encExtract.line.Reconfigure(gpiocdev.AsInput)
 	encExtract.line.Close()
-	paIntake.line.Reconfigure(gpiod.AsInput)
+	paIntake.line.Reconfigure(gpiocdev.AsInput)
 	paIntake.line.Close()
-	paExtract.line.Reconfigure(gpiod.AsInput)
+	paExtract.line.Reconfigure(gpiocdev.AsInput)
 	paExtract.line.Close()
 }
 
@@ -158,44 +158,3 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 		}
 	}
 }
-
-// func rpmForFan(fan *fanType) {
-// 	// 4000 rpm equates to 8000 ppm or 133 pps
-// 	// ie. 1 pulse every 7.5 milliseconds
-// 	var newRpm int64
-// 	for {
-// 		newRpm = 0
-// 		const loopTime = 1003 * time.Millisecond
-// 		var i int
-// 		for start := time.Now(); ; {
-// 			// no need to checl end time quite so often, slow it down by 10 iterations
-// 			if i%10 == 0 {
-// 				select {
-// 				case <-done:
-// 					return
-// 				default:
-// 				}
-// 				if time.Since(start) > loopTime {
-// 					break
-// 				}
-// 			}
-// 			i++
-// 			v1, err := fan.line.Value()
-// 			if err != nil {
-// 				qLog.Warn(" %s", err)
-// 			}
-// 			time.Sleep(3 * time.Millisecond)
-// 			v2, err := fan.line.Value()
-// 			if err != nil {
-// 				qLog.Warn(" %s", err)
-// 			}
-// 			if v1 != v2 {
-// 				newRpm += 30
-// 			}
-// 		}
-// 		fan.mu.Lock()
-// 		fan.rpm = newRpm
-// 		fan.mu.Unlock()
-// 		time.Sleep(1 * time.Second)
-// 	}
-// }

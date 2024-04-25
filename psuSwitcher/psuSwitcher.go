@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/ea7kir/qLog"
-	"github.com/warthog618/gpiod"
-	"github.com/warthog618/gpiod/device/rpi"
+	"github.com/warthog618/go-gpiocdev"
+	"github.com/warthog618/go-gpiocdev/device/rpi"
 )
 
 // using: https://github.com/warthog618/gpiod
@@ -30,28 +30,28 @@ const (
 )
 
 var (
-	relay28v *gpiod.Line
-	relay12v *gpiod.Line
-	relay5v  *gpiod.Line
+	relay28v *gpiocdev.Line
+	relay12v *gpiocdev.Line
+	relay5v  *gpiocdev.Line
 	isUp     bool
 )
 
 func Configure() {
-	relay28vLine, err := gpiod.RequestLine("gpiochip0", k28vRelayPin, gpiod.AsOutput(0))
+	relay28vLine, err := gpiocdev.RequestLine("gpiochip0", k28vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
 		qLog.Fatal("Failed to configure 28v rpi.J8p37 : %s", err)
 		os.Exit(1)
 	}
 	relay28v = relay28vLine
 	relay28v.SetValue(kRelayOff)
-	relay12vLine, err := gpiod.RequestLine("gpiochip0", k12vRelayPin, gpiod.AsOutput(0))
+	relay12vLine, err := gpiocdev.RequestLine("gpiochip0", k12vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
 		qLog.Fatal("Failed to configure 12v rpi.J8p38 : %s", err)
 		os.Exit(1)
 	}
 	relay12v = relay12vLine
 	relay12v.SetValue(kRelayOff)
-	relay5vLine, err := gpiod.RequestLine("gpiochip0", k5vRelayPin, gpiod.AsOutput(0))
+	relay5vLine, err := gpiocdev.RequestLine("gpiochip0", k5vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
 		qLog.Fatal("Failed to configure 5v rpi.J8p40 : %s", err)
 		os.Exit(1)
@@ -65,11 +65,11 @@ func Shutdown() {
 	if isUp {
 		Down()
 	}
-	relay28v.Reconfigure(gpiod.AsInput)
+	relay28v.Reconfigure(gpiocdev.AsInput)
 	relay28v.Close()
-	relay12v.Reconfigure(gpiod.AsInput)
+	relay12v.Reconfigure(gpiocdev.AsInput)
 	relay12v.Close()
-	relay5v.Reconfigure(gpiod.AsInput)
+	relay5v.Reconfigure(gpiocdev.AsInput)
 	relay5v.Close()
 }
 
