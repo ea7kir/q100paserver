@@ -6,10 +6,9 @@
 package psuSwitcher
 
 import (
-	"os"
+	"log"
 	"time"
 
-	"github.com/ea7kir/qLog"
 	"github.com/warthog618/go-gpiocdev"
 	"github.com/warthog618/go-gpiocdev/device/rpi"
 )
@@ -39,22 +38,19 @@ var (
 func Configure() {
 	relay28vLine, err := gpiocdev.RequestLine("gpiochip0", k28vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
-		qLog.Fatal("Failed to configure 28v rpi.J8p37 : %s", err)
-		os.Exit(1)
+		log.Fatalf("FATAL Failed to configure 28v rpi.J8p37 : %s", err)
 	}
 	relay28v = relay28vLine
 	relay28v.SetValue(kRelayOff)
 	relay12vLine, err := gpiocdev.RequestLine("gpiochip0", k12vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
-		qLog.Fatal("Failed to configure 12v rpi.J8p38 : %s", err)
-		os.Exit(1)
+		log.Fatalf("FATAL Failed to configure 12v rpi.J8p38 : %s", err)
 	}
 	relay12v = relay12vLine
 	relay12v.SetValue(kRelayOff)
 	relay5vLine, err := gpiocdev.RequestLine("gpiochip0", k5vRelayPin, gpiocdev.AsOutput(0))
 	if err != nil {
-		qLog.Fatal("Failed to configure 5v rpi.J8p40 : %s", err)
-		os.Exit(1)
+		log.Fatalf("FATAL Failed to configure 5v rpi.J8p40 : %s", err)
 	}
 	relay5v = relay5vLine
 	relay5v.SetValue(kRelayOff)
@@ -74,23 +70,23 @@ func Shutdown() {
 }
 
 func Up() {
-	qLog.Info("Power UP is starting...")
+	log.Printf("INFO Power UP is starting...")
 	relay5v.SetValue(kRelayOn)
 	time.Sleep(200 * time.Millisecond)
 	relay28v.SetValue(kRelayOn)
 	time.Sleep(200 * time.Millisecond)
 	relay12v.SetValue(kRelayOn)
 	isUp = true
-	qLog.Info("Power UP has completed\n")
+	log.Printf("INFO Power UP has completed\n")
 }
 
 func Down() {
-	qLog.Info("Power DOWN is starting...\n")
+	log.Printf("INFO Power DOWN is starting...\n")
 	relay28v.SetValue(kRelayOff)
 	time.Sleep(200 * time.Millisecond)
 	relay5v.SetValue(kRelayOff)
 	time.Sleep(200 * time.Millisecond)
 	relay12v.SetValue(kRelayOff)
 	isUp = false
-	qLog.Info("Power DOWN has completed\n")
+	log.Printf("INFO Power DOWN has completed\n")
 }

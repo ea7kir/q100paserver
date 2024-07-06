@@ -6,11 +6,10 @@
 package fanMonitor
 
 import (
-	"os"
+	"log"
 	"sync"
 	"time"
 
-	"github.com/ea7kir/qLog"
 	"github.com/warthog618/go-gpiocdev"
 	"github.com/warthog618/go-gpiocdev/device/rpi"
 )
@@ -56,8 +55,7 @@ func newFan(j8Pin int) *fanType {
 	// WithDebounce(deboucePeriod)
 	l, err := gpiocdev.RequestLine("gpiochip0", j8Pin, gpiocdev.AsInput)
 	if err != nil {
-		qLog.Fatal("line %v failed: %s", l, err)
-		os.Exit(1)
+		log.Fatalf("FATAL line %v failed: %s", l, err)
 	}
 	return &fanType{
 		mu:   sync.Mutex{},
@@ -144,12 +142,12 @@ func readFanSpeeds(fanList []*fanType, done chan struct{}) {
 				}
 				v1, err := fan.line.Value()
 				if err != nil {
-					qLog.Warn(" %s", err)
+					log.Printf("WARN  %s", err)
 				}
 				time.Sleep(3 * time.Millisecond)
 				v2, err := fan.line.Value()
 				if err != nil {
-					qLog.Warn(" %s", err)
+					log.Printf("WARN  %s", err)
 				}
 				if v1 != v2 {
 					newRpm += 30

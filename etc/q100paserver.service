@@ -24,11 +24,14 @@ After=mult-user.target
 User=pi
 Group=pi
 
+StandardOutput=append:/home/pi/Q100/paserver.log
+StandardError=append:/home/pi/Q100/paserver.log
+
 #WorkingDirectory=/home/pi/Q100/q100paserver
 
 Type=simple
 
-@Restart=always
+#Restart=always
 #Restart=on-failure
 #RestartSec=5
 

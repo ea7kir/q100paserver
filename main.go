@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -21,8 +22,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-
-	"github.com/ea7kir/qLog"
 )
 
 const kServerAddress = "0.0.0.0:9999" // "0.0.0.0:8765"
@@ -53,15 +52,15 @@ func readDevices() string {
 
 func shutdownDevices() {
 	psuSwitcher.Shutdown()
-	qLog.Info("Shutdown psudriver     - done")
+	log.Printf("INFO Shutdown psudriver     - done")
 	fanMonitor.Shutdown()
-	qLog.Info("Shutdown fandriver     - done")
+	log.Printf("INFO Shutdown fandriver     - done")
 	ina226monitor.Shutdown()
-	qLog.Info("Shutdown ina226driver  - done")
+	log.Printf("INFO Shutdown ina226driver  - done")
 	ds18b20monitor.Shutdown()
-	qLog.Info("Shutdown ds18b20driver - done")
+	log.Printf("INFO Shutdown ds18b20driver - done")
 	rpiMonitor.Shutdown()
-	qLog.Info("Shutdown rpidriver     - done")
+	log.Printf("INFO Shutdown rpidriver     - done")
 }
 
 // https://eli.thegreenplace.net/2020/graceful-shutdown-of-a-tcp-server-in-go/
@@ -86,8 +85,7 @@ func NewServer(addr string) *Server {
 	}
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		qLog.Fatal("Failed to create listener: %s", err)
-		os.Exit(1)
+		log.Fatalf("FATAL Failed to create listener: %s", err)
 	}
 	s.listener = l
 	s.wg.Add(1)
@@ -111,7 +109,7 @@ func (s *Server) serve() {
 			case <-s.quit:
 				return
 			default:
-				qLog.Warn("accept error: %s", err)
+				log.Printf("WARN accept error: %s", err)
 			}
 		} else {
 			s.wg.Add(1)
@@ -126,7 +124,7 @@ func (s *Server) serve() {
 func (s *Server) handleConection(conn net.Conn) {
 	defer conn.Close()
 
-	qLog.Info("got connection from: %v\n", conn.RemoteAddr())
+	log.Printf("INFO got connection from: %v\n", conn.RemoteAddr())
 	psuSwitcher.Up()
 	clientReader := bufio.NewReader(conn)
 
@@ -137,16 +135,16 @@ func (s *Server) handleConection(conn net.Conn) {
 		case nil:
 			clientRequest := strings.TrimSpace(clientRequest)
 			if clientRequest == "CLOSE" {
-				qLog.Info("Connection closed with CLOSE")
+				log.Printf("INFO Connection closed with CLOSE")
 				psuSwitcher.Down()
 				return
 			}
 		case io.EOF:
-			qLog.Info("Connection closed with io.EOF")
+			log.Printf("INFO Connection closed with io.EOF")
 			psuSwitcher.Down()
 			return
 		default:
-			qLog.Warn("Connection closed abnormally: %s", err)
+			log.Printf("WARN Connection closed abnormally: %s", err)
 			psuSwitcher.Down()
 			return
 		}
@@ -155,27 +153,14 @@ func (s *Server) handleConection(conn net.Conn) {
 		str := readDevices() + "\n"
 
 		if _, err = conn.Write([]byte(str)); err != nil {
-			qLog.Warn("failed to respond to client: %s\n", err)
+			log.Printf("WARN failed to respond to client: %s\n", err)
 		}
 	}
 }
 
 func main() {
 
-	qLog.SetDebugLevel()
-
-	// qLog.Open("mylog.txt")
-	logFile, err := os.OpenFile("/home/pi/Q100/paserver.log", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("failed to open log file:", err)
-		os.Exit(1)
-	}
-
-	// log.SetOutput(os.Stderr)
-	qLog.SetOutput(logFile)
-	defer qLog.Close()
-
-	qLog.Info("Q-100 PA Server has started")
+	log.Printf("INFO Q-100 PA Server has started")
 
 	// capture exit signals to ensure pins are reverted to input on exit.
 	quit := make(chan os.Signal, 1)
@@ -188,12 +173,12 @@ func main() {
 
 	<-quit // wait on interupt
 
-	qLog.Info("---------- got interupt ----------")
+	log.Printf("INFO ---------- got interupt ----------")
 
 	server.Stop()
 
 	shutdownDevices()
-	qLog.Info("Q-100 PA Server has stopped")
+	log.Printf("INFO Q-100 PA Server has stopped")
 
 	// TODO: shutdown or reboot Rasberry Pi
 }

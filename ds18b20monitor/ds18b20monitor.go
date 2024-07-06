@@ -6,14 +6,13 @@
 package ds18b20monitor
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"strings"
 	"sync"
-
-	"github.com/ea7kir/qLog"
 )
 
 const (
@@ -100,20 +99,20 @@ func readSensors(sensorList []*ds18b20Type, done chan struct{}) {
 			tempC = 0.0
 			data, err = os.ReadFile(file) // 75 bytes
 			if err != nil {
-				qLog.Error("1-Wire %s failed to read\n%s", sensor.slaveId, err)
+				log.Printf("ERROR 1-Wire %s failed to read\n%s", sensor.slaveId, err)
 				continue
 			}
 			str := string(data)
 			if !strings.Contains(str, "YES") {
 				// This flood the log file, so ignore it for now
-				// qLog.Warn("1-Wire %s did not contain YES", sensor.slaveId)
+				// log.Printf("WARN 1-Wire %s did not contain YES", sensor.slaveId)
 				continue
 			} //else {
 			subStr := strings.Split(str, "t=")
 			subStr1 := strings.TrimSpace(subStr[1])
 			tempC, err = strconv.ParseFloat(subStr1, 64)
 			if err != nil {
-				qLog.Warn("1-Wire %s failed to create float: %s", sensor.slaveId, err)
+				log.Printf("WARN 1-Wire %s failed to create float: %s", sensor.slaveId, err)
 				continue
 			}
 			//}
