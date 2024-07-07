@@ -1,8 +1,6 @@
 # Q-100 PA Server
 Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. The readings are sent back whenever the q100transmitter client is connected.
 
-$${\color{red}WARNING:\space ALL\space DEVELOPMENT\space TAKES\space PLACE\space ON\space THE\space MAIN\space BRANCH}$$
-
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM (minimum)
 - Waveshare RPi relay board
@@ -20,7 +18,7 @@ TODO: add more details and photos
 ## Installing
 NOTE: CURRENTLY REQUIRES PI OS BULLSEYE 64-BIT LIGHT
 
-### Using Raspberry Pi Imager v1.8.1:
+### Using Raspberry Pi Imager v1.8.5:
 ```
 CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS (Legacy 64-bit) Lite
 
