@@ -159,6 +159,7 @@ func (s *Server) handleConection(conn net.Conn) {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	log.Printf("INFO Q-100 PA Server has started")
 

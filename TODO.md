@@ -6,3 +6,4 @@
 - check for memory leaks
 - reduce external dependances
 - improve the service file
+- implement shutdown
