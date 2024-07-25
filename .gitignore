@@ -1,4 +1,5 @@
 # ignore executable binary
 q100paserver
+q100paserver-*
 # ignore tests
 *.test
