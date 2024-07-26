@@ -2,8 +2,9 @@
 
 - review log levels
 - test install.sh
-- add /doc folder with more info
+- add more information to /doc
 - check for memory leaks
 - reduce external dependances
 - improve the service file
 - implement shutdown
+- update to Bookworm
