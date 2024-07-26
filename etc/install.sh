@@ -7,6 +7,7 @@ GOVERSION=1.22.5
 
 #
 # TODO: update for Bookworm
+#   /boot/boot/config.txt -> something else ?
 #
 
 whoami | grep -q pi
