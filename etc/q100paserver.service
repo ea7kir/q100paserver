@@ -39,7 +39,7 @@ Type=simple
 
 #TimeoutStopSec=10
 
-ExecStart=/home/pi/Q100/q100paserver/q100paserver
+ExecStart=/home/pi/Q100/q100paserver/q100paserver -shutdown
 
 [Install]
 WantedBy=multi-user.target

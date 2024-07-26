@@ -16,11 +16,11 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 ## Connections
 TODO: add more details and photos
 ## Installing
-NOTE: CURRENTLY REQUIRES PI OS BULLSEYE 64-BIT LIGHT
+NOTE: CURRENTLY REQUIRES PI OS BOOKWORM 64-BIT LIGHT
 
 ### Using Raspberry Pi Imager v1.8.5:
 ```
-CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS (Legacy 64-bit) Lite
+CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS Lite (64-bit)
 
 CONFIGURE:
 	Set hostname:			paserver
@@ -44,6 +44,7 @@ WARNING: the Pi may reboot during the install, so please allow it to complete
 ```
 ssh pi@paserver.local
 
+sudo apt update
 sudo apt -y install git
 mkdir Q100
 cd Q100

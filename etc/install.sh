@@ -56,7 +56,7 @@ Making changes to config.txt
 
 ###### sudo sh -c "echo 'dtoverlay=disable-wifi' >> /boot/config.txt"
 
-###### sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/config.txt" # try: nmcli dev wifi list OR nmcli radio wifi off
+###### sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/config.txt" # try these: nmcli dev wifi list OR nmcli radio wifi off
 
 echo "
 ###################################################
