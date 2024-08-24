@@ -1,5 +1,6 @@
 # Q-100 PA Server
-Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. The readings are sent back whenever the q100transmitter client is connected.
+Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. Data is returned to q100transmitter when connected.
+### REQUIRES Raspberry PI OS Lite (64-BIT) - the Bookworm Lite version
 
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM (minimum)
@@ -12,14 +13,16 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 - 1 x 28v power supply
 - 2 x 12/230v contactors
 
-**A keyboard and mouse are not required at any time**
 ## Connections
 TODO: add more details and photos
+
 ## Installing
-NOTE: CURRENTLY REQUIRES PI OS BOOKWORM 64-BIT LIGHT
+**A keyboard and mouse are not required at any time**
 
 ### Using Raspberry Pi Imager v1.8.5:
 ```
+CHOOSE Raspberry Pi Device: Raspberry Pi 4
+
 CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS Lite (64-bit)
 
 CONFIGURE:
@@ -38,7 +41,7 @@ SAVE and WRITE
 
 Insert the card into the Raspberry Pi and switch on
 
-WARNING: the Pi may reboot during the install, so please allow it to complete
+NOTE: the Pi will reboot during the install, so please allow it to complete
 
 ### Remote login from a Mac, PC or Linux host
 ```
@@ -54,6 +57,24 @@ cd q100paserver/etc
 chmod +x install.sh
 ./install.sh
 ```
+
+### After rebooting
+Login from a PC, Mac, or Linux computer
+```
+ssh pi@paserver.local or open VSCODE to PaServer  ~/Q100/q100paserver
+```
+Execute the following commands
+```
+cd Q100/q100paserver
+go mod tidy
+go build .
+```
+If all went well it can be executed at boot by enabling systemctl
+```
+sudo systemctl enable q100paserver
+sudo systemctl start q100paserver
+```
+
 ## License
 Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
 

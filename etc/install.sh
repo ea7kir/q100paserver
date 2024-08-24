@@ -42,21 +42,21 @@ sudo apt -y full-upgrade
 sudo apt -y autoremove
 sudo apt clean
 
-echo "
-###################################################
-Making changes to config.txt
-###################################################
+# echo "
+# ###################################################
+# Making changes to config.txt TODO:
+# ###################################################
 "
 
 # echo Running rfkill # not sure if this dupicates config.txt
 # rfkill block 0
 # rfkill block 1
 
-###### sudo sh -c "echo '\n# EA7KIR Additions' >> /boot/config.txt"
+###### sudo sh -c "echo '\n# EA7KIR Additions' >> /boot/firmware/config.txt"
 
-###### sudo sh -c "echo 'dtoverlay=disable-wifi' >> /boot/config.txt"
+###### sudo sh -c "echo 'dtoverlay=disable-wifi' >> /boot/firmware/config.txt"
 
-###### sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/config.txt" # try these: nmcli dev wifi list OR nmcli radio wifi off
+###### sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/firmware/config.txt" # try these: nmcli dev wifi list OR nmcli radio wifi off
 
 echo "
 ###################################################
@@ -67,8 +67,8 @@ Ebable 1-Wire and I2C
 # sudo sh -c "echo 'dtoverlay=w1-gpio' >> /boot/config.txt"
 sudo raspi-config nonint do_onewire 0
 
-## sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
-#sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' /boot/config.txt
+# sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
+# sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' /boot/config.txt
 sudo raspi-config nonint do_i2c 0
 
 echo "
@@ -122,15 +122,9 @@ Prevent this script form being executed again
 chmod -x /home/pi/Q100/etc/install.sh # to prevent it from being run a second time
 
 echo "
+###################################################
 INSTALL HAS COMPLETED
-   after rebooting...
-
-   cd Q100/q100paserver
-   go mod tidy
-   go build .
-   sudo systemctl enable q100paserver
-   sudo systemctl start q100paserver
-
+###################################################
 "
 
 while true; do
