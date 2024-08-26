@@ -3,7 +3,7 @@
 # Install Q100 PA Server on Raspberry Pi 4
 # Orignal design by Michael, EA7KIR
 
-GOVERSION=1.22.5
+GOVERSION=1.23.0
 
 #
 # TODO: update for Bookworm
