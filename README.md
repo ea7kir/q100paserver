@@ -14,6 +14,9 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 - 2 x 12/230v contactors
 
 ## Connections
+- find INA266 address using `sudo i2cdetect -y 1`
+- find DS18B20 addresses using `ls /sys/bus/w1/devices/`
+
 TODO: add more details and photos
 
 ## Installing
