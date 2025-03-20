@@ -1,6 +1,6 @@
 module q100paserver
 
-go 1.23.6
+go 1.24.1
 
 require github.com/warthog618/go-gpiocdev v0.9.1
 
