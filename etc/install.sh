@@ -5,6 +5,7 @@
 
 GOVERSION=1.24.2
 
+
 #
 # TODO: update for Bookworm
 #   /boot/boot/config.txt -> something else ?

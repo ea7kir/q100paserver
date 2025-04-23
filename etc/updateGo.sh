@@ -10,3 +10,4 @@ sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf $GOFILE
 cd $OLDPWD
 go version
+
