@@ -43,7 +43,7 @@ sudo apt -y full-upgrade
 sudo apt -y autoremove
 sudo apt clean
 
-# echo "
+echo "
 # ###################################################
 # Disable WiFi (and Bluetooth)
 # ###################################################
