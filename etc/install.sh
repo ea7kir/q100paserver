@@ -45,19 +45,16 @@ sudo apt clean
 
 # echo "
 # ###################################################
-# Making changes to config.txt TODO:
+# Disable WiFi (and Bluetooth)
 # ###################################################
 "
 
-# echo Running rfkill # not sure if this dupicates config.txt
-# rfkill block 0
-# rfkill block 1
+sudo nmcli radio wifi off
 
-###### sudo sh -c "echo '\n# EA7KIR Additions' >> /boot/firmware/config.txt"
-
-###### sudo sh -c "echo 'dtoverlay=disable-wifi' >> /boot/firmware/config.txt"
-
-###### sudo sh -c "echo 'dtoverlay=disable-bt' >> /boot/firmware/config.txt" # try these: nmcli dev wifi list OR nmcli radio wifi off
+# disable bluetooth with dtoverlay=disable-bt
+# but there seems to be more to this...
+# see: dtoverlay -h disable-bt and elsewhere
+# overall, it's probably better to leave it on
 
 echo "
 ###################################################
@@ -65,11 +62,8 @@ Ebable 1-Wire and I2C
 ###################################################
 "
 
-# sudo sh -c "echo 'dtoverlay=w1-gpio' >> /boot/config.txt"
 sudo raspi-config nonint do_onewire 0
 
-# sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
-# sudo sed -i 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' /boot/config.txt
 sudo raspi-config nonint do_i2c 0
 
 echo "
@@ -126,6 +120,10 @@ echo "
 ###################################################
 INSTALL HAS COMPLETED
 ###################################################
+
+After rebooting, continue with instructions in the READM file,
+including the INA266 and DS18B20 addresses in the source code.
+
 "
 
 while true; do

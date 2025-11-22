@@ -22,11 +22,13 @@ TODO: add more details and photos
 ## Installing
 **A keyboard and mouse are not required at any time**
 
-### Using Raspberry Pi Imager v1.8.5:
+### Using Raspberry Pi Imager v1.9.6:
 ```
 CHOOSE Raspberry Pi Device: Raspberry Pi 4
 
 CHOOSE OS: Raspberry Pi OS (other) -> Raspberry Pi OS Lite (64-bit)
+
+Note: this is the Debian Trixie version with no desktop environment
 
 CONFIGURE:
 	Set hostname:			paserver
