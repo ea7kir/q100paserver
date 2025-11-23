@@ -1,6 +1,6 @@
 # Q-100 PA Server
 Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA fans speeds. Data is returned to q100transmitter when connected.
-### REQUIRES Raspberry PI OS Lite (64-BIT) - the Bookworm Lite version
+### REQUIRES Raspberry PI OS Lite (64-BIT) - the Trixie Lite version
 
 ## Hardware
 - Raspberry Pi 4B with 4GB RAM (minimum)
@@ -17,7 +17,7 @@ Monitors Pre-Amplifier and Power Amplier temperatures, and the Enclosure and PA 
 - find INA266 address using `sudo i2cdetect -y 1`
 - find DS18B20 addresses using `ls /sys/bus/w1/devices/`
 
-TODO: add more details and photos
+TODO: add wiring details and photos
 
 ## Installing
 **A keyboard and mouse are not required at any time**
@@ -81,7 +81,7 @@ sudo systemctl start q100paserver
 ```
 
 ## License
-Copyright (c) 2023 Michael Naylor EA7KIR (https://michaelnaylor.es)
+Copyright (c) 2023 Michael Naylor EA7KIR
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

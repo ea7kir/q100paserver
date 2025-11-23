@@ -5,11 +5,11 @@
 
 GOVERSION=1.25.4
 
-
-#
-# TODO: update for Bookworm
-#   /boot/boot/config.txt -> something else ?
-#
+# nmcli device
+# DEVICE  TYPE      STATE                   CONNECTION 
+# eth0    ethernet  connected               Wired connection 1 
+# lo      loopback  connected (externally)  lo                 
+# wlan0   wifi      unavailable             --  
 
 whoami | grep -q pi
 if [ $? != 0 ]; then
@@ -121,7 +121,7 @@ echo "
 INSTALL HAS COMPLETED
 ###################################################
 
-After rebooting, continue with instructions in the READM file,
+After rebooting, continue with instructions in the README file,
 including the INA266 and DS18B20 addresses in the source code.
 
 "
